@@ -156,6 +156,10 @@ def get_session(session_id: int, db: DBSession = Depends(get_db)):
         ConversationTurn.session_id == session_id
     ).order_by(ConversationTurn.turn_number).all()
 
+    vocab_items = db.query(SessionVocabulary).filter(
+        SessionVocabulary.session_id == session_id
+    ).all()
+
     return {
         "id": session.id,
         "situation_id": session.situation_id,
@@ -166,6 +170,14 @@ def get_session(session_id: int, db: DBSession = Depends(get_db)):
         "grammar_score": session.grammar_score,
         "fluency_score": session.fluency_score,
         "summary": session.summary,
+        "vocabulary": [
+            {
+                "word_or_phrase": v.word_or_phrase,
+                "explanation": v.explanation,
+                "example_sentence": v.example_sentence,
+            }
+            for v in vocab_items
+        ],
         "turns": [
             {
                 "speaker": t.speaker,

@@ -37,6 +37,30 @@ export interface SessionSummary {
   }[];
 }
 
+export interface SessionDetail {
+  id: number;
+  situation_title: string;
+  started_at: string;
+  completed_at: string | null;
+  total_score: number | null;
+  grammar_score: number | null;
+  fluency_score: number | null;
+  summary: string | null;
+  vocabulary: {
+    word_or_phrase: string;
+    explanation: string;
+    example_sentence: string | null;
+  }[];
+  turns: {
+    speaker: "ai" | "user";
+    text: string;
+    grammar_score: number | null;
+    grammar_feedback: string | null;
+    corrected_text: string | null;
+    pronunciation_feedback: string | null;
+  }[];
+}
+
 export interface DashboardData {
   total_sessions: number;
   average_score: number;
@@ -81,4 +105,7 @@ export const api = {
     request<SessionSummary>(`/sessions/${sessionId}/complete`, { method: "POST" }),
 
   getDashboard: () => request<DashboardData>("/dashboard"),
+
+  getSession: (sessionId: number) =>
+    request<SessionDetail>(`/sessions/${sessionId}`),
 };

@@ -3,6 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import { api, DashboardData } from "../services/api";
+import SessionDetailModal from "../components/SessionDetailModal";
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
@@ -17,6 +18,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
 
   useEffect(() => {
     api.getDashboard()
@@ -108,31 +110,36 @@ export default function Dashboard() {
 
       {data.recent_sessions.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">Recent Sessions</h2>
+          <h2 className="font-semibold text-gray-800 mb-4">過去のセッション</h2>
           <div className="divide-y divide-gray-100">
             {data.recent_sessions.map((s) => (
-              <div key={s.id} className="py-3 flex items-center justify-between">
+              <button
+                key={s.id}
+                onClick={() => setSelectedSessionId(s.id)}
+                className="w-full py-3 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 -mx-2 transition-colors text-left"
+              >
                 <div>
                   <p className="text-sm font-medium text-gray-800">{s.situation_title}</p>
                   <p className="text-xs text-gray-400">
                     {new Date(s.started_at).toLocaleDateString("ja-JP")}
                   </p>
                 </div>
-                <div className="flex gap-4 text-right text-sm">
+                <div className="flex items-center gap-4 text-right text-sm">
                   <div>
                     <p className="font-semibold text-gray-900">{Math.round(s.total_score)}</p>
-                    <p className="text-xs text-gray-400">overall</p>
+                    <p className="text-xs text-gray-400">総合</p>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-700">{Math.round(s.grammar_score)}</p>
-                    <p className="text-xs text-gray-400">grammar</p>
+                    <p className="text-xs text-gray-400">文法</p>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-700">{Math.round(s.fluency_score)}</p>
-                    <p className="text-xs text-gray-400">fluency</p>
+                    <p className="text-xs text-gray-400">流暢さ</p>
                   </div>
+                  <span className="text-gray-300 text-base">›</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -141,9 +148,16 @@ export default function Dashboard() {
       {data.total_sessions === 0 && (
         <div className="text-center py-16 text-gray-400">
           <p className="text-5xl mb-4">📊</p>
-          <p className="font-medium">No sessions yet</p>
-          <p className="text-sm mt-1">Complete your first practice session to see your progress</p>
+          <p className="font-medium">まだセッションがありません</p>
+          <p className="text-sm mt-1">最初のセッションを完了するとここに表示されます</p>
         </div>
+      )}
+
+      {selectedSessionId !== null && (
+        <SessionDetailModal
+          sessionId={selectedSessionId}
+          onClose={() => setSelectedSessionId(null)}
+        />
       )}
     </div>
   );
