@@ -12,24 +12,81 @@
 
 ## 必要環境
 
-- Podman（DBコンテナ起動用）
-- Python 3.9+
-- Node.js 18+
-- Chrome（音声入力に対応）
+- [Podman](https://podman.io/)
 - [Anthropic API キー](https://console.anthropic.com/settings/api-keys)
+- Chrome（音声入力対応）
 
 ## セットアップ・起動
 
-### 1. APIキーの設定
+### 1. APIキーを設定する
 
 ```bash
 cp secrets/.env.example secrets/.env
 # secrets/.env を編集して ANTHROPIC_API_KEY を設定
 ```
 
-### 2. DBを起動（podmanコンテナ）
+### 2. ネットワークを作成する
 
 ```bash
+podman network create english-net
+```
+
+### 3. 全コンテナをビルド・起動する
+
+```bash
+# DB
+podman run -d \
+  --name english-db \
+  --network english-net \
+  -e POSTGRES_DB=english_app \
+  -e POSTGRES_USER=appuser \
+  -e POSTGRES_PASSWORD=apppassword \
+  -v "$(pwd)/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
+  -v english-db-data:/var/lib/postgresql/data \
+  docker.io/library/postgres:16-alpine
+
+# DB の起動を待つ
+sleep 5
+
+# バックエンド
+podman build -f backend/Containerfile backend/ -t english-backend:latest
+podman run -d \
+  --name english-backend \
+  --network english-net \
+  -e ANTHROPIC_API_KEY="$(grep ANTHROPIC_API_KEY secrets/.env | cut -d= -f2)" \
+  -e DATABASE_URL=postgresql://appuser:apppassword@english-db:5432/english_app \
+  -p 8000:8000 \
+  english-backend:latest
+
+# フロントエンド
+podman build -f frontend/Containerfile . -t english-frontend:latest
+podman run -d \
+  --name english-frontend \
+  --network english-net \
+  -p 3000:8080 \
+  english-frontend:latest
+```
+
+ブラウザ（Chrome）で <http://localhost:3000> を開く
+
+### 2回目以降の起動・停止
+
+```bash
+# 起動
+podman start english-db english-backend english-frontend
+
+# 停止
+podman stop english-db english-backend english-frontend
+```
+
+---
+
+### ローカル開発モード（Python / Node をホストで動かす場合）
+
+**必要環境:** Python 3.9+、Node.js 18+
+
+```bash
+# DB のみコンテナで起動
 podman run -d \
   --name english-db \
   -e POSTGRES_DB=english_app \
@@ -38,45 +95,25 @@ podman run -d \
   -p 5432:5432 \
   -v "$(pwd)/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
   docker.io/library/postgres:16-alpine
-```
 
-### 3. バックエンドを起動
-
-```bash
+# バックエンド
 cd backend
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 export $(cat ../secrets/.env | xargs)
 DATABASE_URL=postgresql://appuser:apppassword@localhost:5432/english_app \
   .venv/bin/uvicorn main:app --reload
-```
 
-### 4. フロントエンドを起動
-
-```bash
+# フロントエンド（別ターミナル）
 cd frontend
-npm install
-npm run dev
+npm install && npm run dev
+# http://localhost:5173
 ```
-
-ブラウザ（Chrome）で <http://localhost:5173> を開く
-
----
-
-### コンテナ環境（podman-compose）
-
-```bash
-podman-compose up --build
-# http://localhost:3000
-```
-
-> `podman-compose` は `pip install podman-compose` でインストールできます。
 
 ## 使い方
 
 1. **Practice** タブでシチュエーションを選択
 2. 「🔊 Start Session」を押してAIの音声を再生
-3. 🎤 ボタンを押して英語で回答 → ⏹ボタンで送信
+3. 🎤 ボタンを押して英語で回答 → ⏹ ボタンで送信
 4. AIがフィードバックとともに会話を継続（約6ターン）
 5. セッション終了後、日本語で総括レポートを表示
 6. **Dashboard** タブで成績推移を確認、過去のセッション行をクリックで詳細を参照
@@ -98,20 +135,23 @@ podman-compose up --build
 ```text
 my-english-app/
 ├── backend/
+│   ├── Containerfile
 │   ├── main.py                  # FastAPI エントリポイント
 │   ├── models.py                # DB モデル
 │   ├── routers/                 # sessions / situations / dashboard / tts
 │   └── services/
 │       └── claude_service.py    # Claude API 統合・プロンプト定義
 ├── frontend/
+│   ├── Containerfile
 │   └── src/
 │       ├── pages/               # Home / Conversation / Dashboard
 │       ├── components/          # VoiceRecorder / FeedbackPanel / SessionSummary / SessionDetailModal
 │       └── services/api.ts      # バックエンド API クライアント
 ├── db/
 │   └── init.sql                 # テーブル定義
-├── nginx/nginx.conf
-├── docker-compose.yml
+├── nginx/
+│   └── nginx.conf               # UBI nginx 用 location ブロック設定
+├── docker-compose.yml           # podman-compose / docker-compose 用
 └── secrets/
     └── .env.example             # APIキー設定テンプレート（.env は gitignore）
 ```
