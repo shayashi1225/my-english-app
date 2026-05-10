@@ -123,7 +123,7 @@ export default function Conversation() {
   }
 
   if (phase === "summary" && summary) {
-    return <SessionSummaryView data={summary} />;
+    return <SessionSummaryView data={summary} sessionId={Number(sessionId)} />;
   }
 
   return (

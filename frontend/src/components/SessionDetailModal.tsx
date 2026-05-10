@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, SessionDetail } from "../services/api";
+import ShadowingPlayer from "./ShadowingPlayer";
 
 interface Props {
   sessionId: number;
@@ -23,7 +24,7 @@ function Score({ value, label }: { value: number | null; label: string }) {
 export default function SessionDetailModal({ sessionId, onClose }: Props) {
   const [detail, setDetail] = useState<SessionDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"summary" | "conversation">("summary");
+  const [tab, setTab] = useState<"summary" | "conversation" | "shadowing">("summary");
 
   useEffect(() => {
     api.getSession(sessionId)
@@ -73,7 +74,11 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
 
             {/* Tabs */}
             <div className="flex border-b border-gray-200 px-6">
-              {(["summary", "conversation"] as const).map((t) => (
+              {([
+                ["summary", "サマリー"],
+                ["conversation", "会話ログ"],
+                ["shadowing", "シャドーイング"],
+              ] as const).map(([t, label]) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -82,14 +87,20 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700"}`}
                 >
-                  {t === "summary" ? "サマリー" : "会話ログ"}
+                  {label}
                 </button>
               ))}
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-              {tab === "summary" ? (
+              {tab === "shadowing" ? (
+                <ShadowingPlayer
+                  items={detail.turns
+                    .filter((t) => t.speaker === "user" && t.corrected_text && t.corrected_text !== t.text)
+                    .map((t) => ({ original: t.text, corrected: t.corrected_text! }))}
+                />
+              ) : tab === "summary" ? (
                 <>
                   {detail.summary && (
                     <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 leading-relaxed">
