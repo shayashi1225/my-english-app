@@ -3,21 +3,122 @@
 @tailwind utilities;
 
 @layer base {
+  * { scrollbar-width: thin; scrollbar-color: #00FFFF #000033; }
+  *::-webkit-scrollbar { width: 4px; }
+  *::-webkit-scrollbar-track { background: #000033; }
+  *::-webkit-scrollbar-thumb { background: #00FFFF; border-radius: 2px; }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: #000033;
+    color: #00FFFF;
+    font-family: system-ui, sans-serif;
+    /* circuit grid */
+    background-image:
+      linear-gradient(rgba(0,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+    min-height: 100vh;
+  }
+
+  /* scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.06) 0px,
+      rgba(0,0,0,0.06) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
   }
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(1.5); opacity: 0; }
+@layer components {
+  /* ── Card ── */
+  .cyber-card {
+    @apply bg-cyber-bg2 border border-cyber-border rounded-xl p-5;
+    box-shadow: 0 0 1px rgba(0,255,255,0.3), inset 0 0 24px rgba(0,0,68,0.6);
+  }
+  .cyber-card:hover {
+    @apply border-cyber-borderB;
+    box-shadow: 0 0 12px rgba(0,255,255,0.25), inset 0 0 24px rgba(0,0,68,0.6);
+  }
+
+  /* ── Button primary (cyan) ── */
+  .cyber-btn {
+    @apply px-6 py-2.5 rounded text-cyber-cyan border border-cyber-cyan font-mono text-sm
+           uppercase tracking-widest transition-all duration-200;
+    background: rgba(0,255,255,0.08);
+  }
+  .cyber-btn:hover:not(:disabled) {
+    background: rgba(0,255,255,0.18);
+    box-shadow: 0 0 12px rgba(0,255,255,0.5);
+  }
+  .cyber-btn:disabled { @apply opacity-40 cursor-not-allowed; }
+
+  /* ── Button accent (blue) ── */
+  .cyber-btn-blue {
+    @apply px-6 py-2.5 rounded font-mono text-sm uppercase tracking-widest
+           transition-all duration-200 text-white border border-cyber-blue;
+    background: rgba(30,144,255,0.2);
+  }
+  .cyber-btn-blue:hover:not(:disabled) {
+    background: rgba(30,144,255,0.35);
+    box-shadow: 0 0 12px rgba(30,144,255,0.5);
+  }
+  .cyber-btn-blue:disabled { @apply opacity-40 cursor-not-allowed; }
+
+  /* ── Button danger (red) ── */
+  .cyber-btn-red {
+    @apply px-6 py-2.5 rounded font-mono text-sm uppercase tracking-widest
+           transition-all duration-200 text-cyber-red border border-cyber-red;
+    background: rgba(255,45,85,0.1);
+  }
+  .cyber-btn-red:hover:not(:disabled) {
+    background: rgba(255,45,85,0.25);
+    box-shadow: 0 0 12px rgba(255,45,85,0.5);
+  }
+
+  /* ── Neon text ── */
+  .neon-cyan  { text-shadow: 0 0 6px #00FFFF, 0 0 14px rgba(0,255,255,0.5); }
+  .neon-blue  { text-shadow: 0 0 6px #1E90FF, 0 0 14px rgba(30,144,255,0.5); }
+  .neon-green { text-shadow: 0 0 6px #00FF88, 0 0 14px rgba(0,255,136,0.5); }
+
+  /* ── Score badge ── */
+  .score-green { @apply text-cyber-green; text-shadow: 0 0 6px #00FF88; }
+  .score-yellow{ @apply text-cyber-yellow; text-shadow: 0 0 6px #FFD700; }
+  .score-red   { @apply text-cyber-red;   text-shadow: 0 0 6px #FF2D55; }
+
+  /* ── Input / Textarea ── */
+  .cyber-input {
+    @apply bg-cyber-bg border border-cyber-border rounded px-3 py-2
+           text-cyber-cyan placeholder-cyber-cyan/40 outline-none text-sm;
+  }
+  .cyber-input:focus { @apply border-cyber-borderB; box-shadow: 0 0 8px rgba(0,255,255,0.3); }
+
+  /* ── Tab button ── */
+  .cyber-tab {
+    @apply py-3 px-4 text-xs font-mono uppercase tracking-widest border-b-2
+           transition-colors -mb-px;
+  }
+  .cyber-tab-active   { @apply border-cyber-cyan text-cyber-cyan; text-shadow: 0 0 6px #00FFFF; }
+  .cyber-tab-inactive { @apply border-transparent text-cyber-cyan/40 hover:text-cyber-cyan/70; }
 }
 
+/* Recording pulse */
+@keyframes recording-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.7); opacity: 0;   }
+}
 .recording-pulse::before {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: -6px;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.4);
-  animation: pulse-ring 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border: 2px solid #FF2D55;
+  animation: recording-ring 1.2s ease-out infinite;
 }

@@ -7,10 +7,10 @@ import SessionDetailModal from "../components/SessionDetailModal";
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
-      <p className="text-gray-400 text-sm mb-1">{label}</p>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+    <div className="cyber-card">
+      <p className="text-cyber-blue font-mono text-xs tracking-widest mb-1">{label}</p>
+      <p className="text-3xl font-bold font-mono text-cyber-cyan neon-cyan">{value}</p>
+      {sub && <p className="text-xs text-cyber-cyan/40 font-mono mt-1">{sub}</p>}
     </div>
   );
 }
@@ -29,7 +29,8 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+        <div className="w-10 h-10 rounded-full border-2 border-cyber-cyan border-t-transparent animate-spin"
+             style={{ boxShadow: "0 0 12px rgba(0,255,255,0.4)" }} />
       </div>
     );
   }
@@ -39,16 +40,19 @@ export default function Dashboard() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Your Progress</h1>
-        <p className="text-gray-500 text-sm mt-1">Track your English improvement over time</p>
+        <p className="font-mono text-xs tracking-[0.3em] text-cyber-blue mb-2 neon-blue">
+          ▸ TRAINING PROGRESS REPORT
+        </p>
+        <h1 className="text-2xl font-bold font-mono neon-cyan tracking-wider">DASHBOARD</h1>
+        <div className="h-px bg-gradient-to-r from-transparent via-cyber-cyan to-transparent opacity-30 mt-3" />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Sessions" value={data.total_sessions} sub="completed" />
-        <StatCard label="Average Score" value={`${data.average_score}`} sub="out of 100" />
-        <StatCard label="Current Streak" value={`${data.current_streak} days`} />
+        <StatCard label="SESSIONS" value={data.total_sessions} sub="completed" />
+        <StatCard label="AVG SCORE" value={`${data.average_score}`} sub="out of 100" />
+        <StatCard label="STREAK" value={`${data.current_streak}d`} sub="consecutive days" />
         <StatCard
-          label="Best Situation"
+          label="BEST SCENARIO"
           value={
             data.situation_stats.length > 0
               ? data.situation_stats.sort((a, b) => b.avg_score - a.avg_score)[0].title.split(" ")[0]
@@ -58,27 +62,45 @@ export default function Dashboard() {
       </div>
 
       {data.daily_scores.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">Score Trend (Last 30 Days)</h2>
+        <div className="cyber-card">
+          <h2 className="font-mono text-xs tracking-widest text-cyber-blue mb-5">
+            ◈ SCORE TREND — LAST 30 DAYS
+          </h2>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data.daily_scores}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,255,255,0.08)" />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10, fill: "#00FFFF", opacity: 0.5, fontFamily: "monospace" }}
                 tickFormatter={(v) => v.slice(5)}
+                axisLine={{ stroke: "rgba(0,255,255,0.2)" }}
+                tickLine={false}
               />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <YAxis
+                domain={[0, 100]}
+                tick={{ fontSize: 10, fill: "#00FFFF", opacity: 0.5, fontFamily: "monospace" }}
+                axisLine={{ stroke: "rgba(0,255,255,0.2)" }}
+                tickLine={false}
+              />
               <Tooltip
                 formatter={(v: number) => [`${v}`, "Score"]}
                 labelFormatter={(l) => `Date: ${l}`}
+                contentStyle={{
+                  background: "rgba(0,0,68,0.95)",
+                  border: "1px solid rgba(0,255,255,0.3)",
+                  borderRadius: "8px",
+                  fontFamily: "monospace",
+                  fontSize: "12px",
+                  color: "#00FFFF",
+                }}
               />
               <Line
                 type="monotone"
                 dataKey="avg_score"
-                stroke="#3b82f6"
+                stroke="#00FFFF"
                 strokeWidth={2}
-                dot={{ r: 4 }}
+                dot={{ r: 3, fill: "#00FFFF", strokeWidth: 0 }}
+                style={{ filter: "drop-shadow(0 0 4px #00FFFF)" }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -86,22 +108,27 @@ export default function Dashboard() {
       )}
 
       {data.situation_stats.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">Performance by Situation</h2>
-          <div className="space-y-3">
+        <div className="cyber-card">
+          <h2 className="font-mono text-xs tracking-widest text-cyber-blue mb-5">
+            ◈ PERFORMANCE BY SCENARIO
+          </h2>
+          <div className="space-y-4">
             {data.situation_stats.map((s) => (
               <div key={s.title} className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 w-52 truncate">{s.title}</span>
-                <div className="flex-1 bg-gray-100 rounded-full h-3">
+                <span className="text-xs font-mono text-cyber-cyan/60 w-52 truncate">{s.title}</span>
+                <div className="flex-1 h-2 rounded-full overflow-hidden"
+                     style={{ background: "rgba(0,255,255,0.1)", border: "1px solid rgba(0,255,255,0.15)" }}>
                   <div
-                    className="bg-blue-500 h-3 rounded-full"
-                    style={{ width: `${s.avg_score}%` }}
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${s.avg_score}%`,
+                      background: "linear-gradient(90deg, #1E90FF, #00FFFF)",
+                      boxShadow: "0 0 6px rgba(0,255,255,0.4)",
+                    }}
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-700 w-12 text-right">
-                  {s.avg_score}
-                </span>
-                <span className="text-xs text-gray-400 w-16">×{s.count}</span>
+                <span className="text-xs font-mono text-cyber-cyan w-10 text-right">{s.avg_score}</span>
+                <span className="text-xs font-mono text-cyber-cyan/30 w-12">×{s.count}</span>
               </div>
             ))}
           </div>
@@ -109,35 +136,42 @@ export default function Dashboard() {
       )}
 
       {data.recent_sessions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">過去のセッション</h2>
-          <div className="divide-y divide-gray-100">
+        <div className="cyber-card">
+          <h2 className="font-mono text-xs tracking-widest text-cyber-blue mb-5">
+            ◈ RECENT SESSIONS
+          </h2>
+          <div className="space-y-1">
             {data.recent_sessions.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setSelectedSessionId(s.id)}
-                className="w-full py-3 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 -mx-2 transition-colors text-left"
+                className="w-full py-3 px-3 flex items-center justify-between rounded-lg transition-all duration-200 text-left group"
+                style={{ background: "transparent" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,255,255,0.05)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{s.situation_title}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-mono text-cyber-cyan group-hover:neon-cyan transition-all">
+                    {s.situation_title}
+                  </p>
+                  <p className="text-xs font-mono text-cyber-cyan/30 mt-0.5">
                     {new Date(s.started_at).toLocaleDateString("ja-JP")}
                   </p>
                 </div>
-                <div className="flex items-center gap-4 text-right text-sm">
+                <div className="flex items-center gap-5 text-right">
                   <div>
-                    <p className="font-semibold text-gray-900">{Math.round(s.total_score)}</p>
-                    <p className="text-xs text-gray-400">総合</p>
+                    <p className="text-sm font-bold font-mono text-cyber-cyan">{Math.round(s.total_score)}</p>
+                    <p className="text-xs font-mono text-cyber-cyan/30">総合</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">{Math.round(s.grammar_score)}</p>
-                    <p className="text-xs text-gray-400">文法</p>
+                    <p className="text-sm font-mono text-cyber-blue">{Math.round(s.grammar_score)}</p>
+                    <p className="text-xs font-mono text-cyber-cyan/30">文法</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">{Math.round(s.fluency_score)}</p>
-                    <p className="text-xs text-gray-400">流暢さ</p>
+                    <p className="text-sm font-mono text-cyber-blue">{Math.round(s.fluency_score)}</p>
+                    <p className="text-xs font-mono text-cyber-cyan/30">流暢さ</p>
                   </div>
-                  <span className="text-gray-300 text-base">›</span>
+                  <span className="text-cyber-cyan/30 group-hover:text-cyber-cyan transition-colors">›</span>
                 </div>
               </button>
             ))}
@@ -146,10 +180,10 @@ export default function Dashboard() {
       )}
 
       {data.total_sessions === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-5xl mb-4">📊</p>
-          <p className="font-medium">まだセッションがありません</p>
-          <p className="text-sm mt-1">最初のセッションを完了するとここに表示されます</p>
+        <div className="text-center py-16">
+          <p className="text-4xl mb-4 opacity-30">◈</p>
+          <p className="font-mono text-cyber-cyan/40 tracking-widest text-sm">NO SESSION DATA</p>
+          <p className="text-xs font-mono text-cyber-cyan/20 mt-2">Complete your first session to see stats here</p>
         </div>
       )}
 

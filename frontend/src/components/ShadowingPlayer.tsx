@@ -87,7 +87,6 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
     setUserText("");
   }
 
-  // Simple similarity: count matching words
   function similarity(a: string, b: string): number {
     const wa = a.toLowerCase().split(/\s+/);
     const wb = b.toLowerCase().split(/\s+/);
@@ -96,16 +95,24 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
   }
 
   const score = userText ? similarity(item.corrected, userText) : null;
+  const scoreColor = score === null ? "" :
+    score >= 80 ? "text-cyber-green border-cyber-green" :
+    score >= 50 ? "text-cyber-yellow border-cyber-yellow" :
+    "text-cyber-red border-cyber-red";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-xs font-bold text-gray-400 mt-0.5">#{index + 1}</span>
-        <div className="flex-1 space-y-1">
-          <p className="text-xs text-gray-400">元の発話</p>
-          <p className="text-sm text-gray-500 italic">"{item.original}"</p>
-          <p className="text-xs text-gray-400 mt-2">修正文（目標）</p>
-          <p className="text-sm font-medium text-gray-800">"{item.corrected}"</p>
+    <div className="cyber-card space-y-4">
+      <div className="flex items-start gap-3">
+        <span className="text-xs font-mono text-cyber-blue mt-0.5">#{index + 1}</span>
+        <div className="flex-1 space-y-2">
+          <div>
+            <p className="text-xs font-mono tracking-widest text-cyber-cyan/30 mb-1">▸ 元の発話</p>
+            <p className="text-sm font-mono text-cyber-cyan/50 italic">"{item.original}"</p>
+          </div>
+          <div>
+            <p className="text-xs font-mono tracking-widest text-cyber-blue mb-1">▸ 修正文（目標）</p>
+            <p className="text-sm font-mono text-cyber-cyan">"{item.corrected}"</p>
+          </div>
         </div>
       </div>
 
@@ -114,24 +121,26 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
         <button
           onClick={handlePlay}
           disabled={playing}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-sm font-medium hover:bg-blue-100 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-blue text-cyber-blue text-xs font-mono hover:bg-cyber-blue/10 disabled:opacity-30 transition-all"
+          style={!playing ? { boxShadow: "none" } : { boxShadow: "0 0 8px rgba(30,144,255,0.3)" }}
         >
           {playing ? "⏸" : "🔊"} {playing ? "再生中..." : "聴く"}
         </button>
 
         {!getSR() ? (
-          <span className="text-xs text-red-400 self-center">Chrome が必要です</span>
+          <span className="text-xs font-mono text-cyber-red/60 self-center">⚠ Chrome が必要です</span>
         ) : recordState === "idle" || recordState === "done" ? (
           <button
             onClick={startRecording}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-red text-cyber-red text-xs font-mono hover:bg-cyber-red/10 transition-all"
           >
             🎤 練習する
           </button>
         ) : (
           <button
             onClick={stopRecording}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-medium animate-pulse"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-red bg-cyber-red/20 text-cyber-red text-xs font-mono animate-pulse"
+            style={{ boxShadow: "0 0 12px rgba(255,45,85,0.4)" }}
           >
             ⏹ 停止
           </button>
@@ -140,7 +149,7 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
         {recordState === "done" && (
           <button
             onClick={reset}
-            className="px-3 py-2 rounded-xl text-gray-400 text-sm hover:text-gray-600 transition-colors"
+            className="px-3 py-2 rounded-lg text-cyber-cyan/30 text-sm font-mono hover:text-cyber-cyan transition-colors"
           >
             ↺
           </button>
@@ -149,21 +158,17 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
 
       {/* Result */}
       {recordState === "done" && userText && (
-        <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+        <div className="rounded-lg border border-cyber-border px-4 py-3 space-y-2"
+             style={{ background: "rgba(0,0,68,0.6)" }}>
           <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-500 font-medium">あなたの発話</p>
+            <p className="text-xs font-mono tracking-widest text-cyber-cyan/40">▸ あなたの発話</p>
             {score !== null && (
-              <span
-                className={`text-xs font-bold px-2 py-0.5 rounded-full
-                  ${score >= 80 ? "bg-green-100 text-green-700" :
-                    score >= 50 ? "bg-yellow-100 text-yellow-700" :
-                    "bg-red-100 text-red-700"}`}
-              >
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${scoreColor}`}>
                 一致率 {score}%
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-700">"{userText}"</p>
+          <p className="text-sm font-mono text-cyber-cyan/70">"{userText}"</p>
         </div>
       )}
     </div>
@@ -173,7 +178,7 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
 export default function ShadowingPlayer({ items }: Props) {
   if (items.length === 0) {
     return (
-      <p className="text-sm text-gray-400 text-center py-6">
+      <p className="text-xs font-mono text-cyber-cyan/30 text-center py-6 tracking-widest">
         このセッションには修正文がありません
       </p>
     );
@@ -181,8 +186,8 @@ export default function ShadowingPlayer({ items }: Props) {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-gray-400">
-        「聴く」で正しい発音を確認し、「練習する」で声に出して繰り返しましょう
+      <p className="text-xs font-mono text-cyber-cyan/40 tracking-wide">
+        ▸ 「聴く」で正しい発音を確認し、「練習する」で声に出して繰り返しましょう
       </p>
       {items.map((item, i) => (
         <ShadowingCard key={i} item={item} index={i} />

@@ -12,14 +12,21 @@ type Tab = "summary" | "shadowing";
 
 function ScoreCircle({ score, label }: { score: number; label: string }) {
   const color =
-    score >= 80 ? "text-green-600" :
-    score >= 60 ? "text-yellow-600" :
-    "text-red-600";
+    score >= 80 ? "text-cyber-green" :
+    score >= 60 ? "text-cyber-yellow" :
+    "text-cyber-red";
+  const shadow =
+    score >= 80 ? "0 0 12px rgba(0,255,136,0.5)" :
+    score >= 60 ? "0 0 12px rgba(255,204,0,0.5)" :
+    "0 0 12px rgba(255,45,85,0.5)";
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className={`text-4xl font-bold ${color}`}>{Math.round(score)}</div>
-      <div className="text-xs text-gray-500">{label}</div>
+    <div className="flex flex-col items-center gap-2">
+      <div className={`text-4xl font-bold font-mono ${color}`}
+           style={{ textShadow: shadow }}>
+        {Math.round(score)}
+      </div>
+      <div className="text-xs font-mono text-cyber-cyan/40 tracking-widest">{label}</div>
     </div>
   );
 }
@@ -42,32 +49,39 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">セッション完了！</h2>
-        <p className="text-gray-500">今回の結果レポート</p>
+        <p className="font-mono text-xs tracking-[0.3em] text-cyber-blue mb-2 neon-blue">
+          ▸ SESSION COMPLETE
+        </p>
+        <h2 className="text-2xl font-bold font-mono neon-cyan tracking-wider">RESULT REPORT</h2>
+        <div className="h-px bg-gradient-to-r from-transparent via-cyber-cyan to-transparent opacity-30 mt-3" />
       </div>
 
       {/* Scores */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <div className="flex justify-around mb-6">
+      <div className="cyber-card">
+        <div className="flex justify-around mb-6 py-2">
           <ScoreCircle score={summary.total_score} label="総合" />
+          <div className="w-px" style={{ background: "rgba(0,255,255,0.1)" }} />
           <ScoreCircle score={summary.grammar_score} label="文法" />
+          <div className="w-px" style={{ background: "rgba(0,255,255,0.1)" }} />
           <ScoreCircle score={summary.fluency_score} label="流暢さ" />
         </div>
-        <p className="text-gray-700 text-sm leading-relaxed">{summary.overall_summary}</p>
+        <div className="border-t border-cyber-border pt-4">
+          <p className="text-cyber-cyan/70 text-sm font-mono leading-relaxed">{summary.overall_summary}</p>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-cyber-border">
         {([["summary", "結果レポート"], ["shadowing", `シャドーイング練習 ${shadowingItems.length > 0 ? `(${shadowingItems.length})` : ""}`]] as const).map(([t, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`py-3 px-5 text-sm font-medium border-b-2 -mb-px transition-colors
+            className={`py-3 px-5 text-xs font-mono tracking-widest border-b-2 -mb-px transition-all
               ${tab === t
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                ? "border-cyber-cyan text-cyber-cyan neon-cyan"
+                : "border-transparent text-cyber-cyan/30 hover:text-cyber-cyan/60"}`}
           >
-            {label}
+            {t === tab ? "▸ " : ""}{label.toUpperCase()}
           </button>
         ))}
       </div>
@@ -76,11 +90,14 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {summary.strengths.length > 0 && (
-              <div className="bg-green-50 rounded-2xl p-5">
-                <h3 className="font-semibold text-green-800 mb-3">良かった点</h3>
+              <div className="rounded-xl p-5 border border-cyber-green/30"
+                   style={{ background: "rgba(0,255,136,0.05)" }}>
+                <h3 className="font-mono text-xs tracking-widest text-cyber-green mb-3 neon-green">
+                  ◈ 良かった点
+                </h3>
                 <ul className="space-y-2">
                   {summary.strengths.map((s, i) => (
-                    <li key={i} className="text-green-700 text-sm flex gap-2">
+                    <li key={i} className="text-cyber-green/70 text-sm font-mono flex gap-2">
                       <span>✓</span>{s}
                     </li>
                   ))}
@@ -88,11 +105,15 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
               </div>
             )}
             {summary.areas_for_improvement.length > 0 && (
-              <div className="bg-yellow-50 rounded-2xl p-5">
-                <h3 className="font-semibold text-yellow-800 mb-3">改善点</h3>
+              <div className="rounded-xl p-5 border border-cyber-yellow/30"
+                   style={{ background: "rgba(255,204,0,0.05)" }}>
+                <h3 className="font-mono text-xs tracking-widest text-cyber-yellow mb-3"
+                    style={{ textShadow: "0 0 8px rgba(255,204,0,0.5)" }}>
+                  ◈ 改善点
+                </h3>
                 <ul className="space-y-2">
                   {summary.areas_for_improvement.map((a, i) => (
-                    <li key={i} className="text-yellow-700 text-sm flex gap-2">
+                    <li key={i} className="text-cyber-yellow/70 text-sm font-mono flex gap-2">
                       <span>→</span>{a}
                     </li>
                   ))}
@@ -103,14 +124,20 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
 
           {vocabulary.length > 0 && (
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3">今回のセッションで覚えたい表現</h3>
+              <h3 className="font-mono text-xs tracking-widest text-cyber-blue mb-4">
+                ◈ 今回のセッションで覚えたい表現
+              </h3>
               <div className="space-y-3">
                 {vocabulary.map((v, i) => (
-                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
-                    <p className="font-semibold text-blue-700 mb-1">"{v.word_or_phrase}"</p>
-                    <p className="text-gray-600 text-sm mb-2">{v.explanation}</p>
+                  <div key={i} className="cyber-card">
+                    <p className="font-mono font-semibold text-cyber-blue mb-1 text-sm">
+                      "{v.word_or_phrase}"
+                    </p>
+                    <p className="text-cyber-cyan/60 text-sm mb-2">{v.explanation}</p>
                     {v.example_sentence && (
-                      <p className="text-gray-400 text-xs italic">例: {v.example_sentence}</p>
+                      <p className="text-cyber-cyan/30 text-xs font-mono italic border-l-2 border-cyber-cyan/20 pl-3">
+                        例: {v.example_sentence}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -122,18 +149,18 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
         <ShadowingPlayer items={shadowingItems} />
       )}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-2">
         <button
           onClick={() => navigate("/")}
-          className="flex-1 bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-700 transition-colors"
+          className="cyber-btn flex-1 py-3"
         >
-          もう一度練習する
+          ▸ もう一度練習する
         </button>
         <button
           onClick={() => navigate("/dashboard")}
-          className="flex-1 bg-gray-100 text-gray-700 rounded-xl py-3 font-semibold hover:bg-gray-200 transition-colors"
+          className="cyber-btn-blue flex-1 py-3"
         >
-          ダッシュボードを見る
+          ▸ ダッシュボード
         </button>
       </div>
     </div>
