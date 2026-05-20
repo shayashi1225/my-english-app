@@ -5,8 +5,10 @@
 ## 機能
 
 - **6つのビジネスシチュエーション** — スタンドアップ・コードレビュー・クライアントプレゼン・インシデント対応・スプリント計画・1on1
+- **学習者名の設定** — ホーム画面で名前を入力するとAIが会話中に名前で呼びかける（localStorageに保存）
 - **音声会話** — AIが英語で話しかけ（gTTS）、ユーザーはマイクで英語回答（Web Speech API）
 - **リアルタイムフィードバック** — ターンごとに文法スコア・修正案・発音アドバイスを表示
+- **シャドーイング練習** — セッションサマリー後に自分の発言とAIの修正文を聞き比べて発音を練習
 - **セッションサマリー（日本語）** — 終了後に総括・良かった点・改善点・語彙解説をレポート
 - **ダッシュボード** — スコア推移グラフ・ストリーク・シチュエーション別成績・過去セッションの詳細参照
 
@@ -111,12 +113,13 @@ npm install && npm run dev
 
 ## 使い方
 
-1. **Practice** タブでシチュエーションを選択
-2. 「🔊 Start Session」を押してAIの音声を再生
+1. **Practice** タブで名前を設定し、シチュエーションを選択
+2. AIの音声が自動再生されるので内容を聞く
 3. 🎤 ボタンを押して英語で回答 → ⏹ ボタンで送信
-4. AIがフィードバックとともに会話を継続（約6ターン）
-5. セッション終了後、日本語で総括レポートを表示
-6. **Dashboard** タブで成績推移を確認、過去のセッション行をクリックで詳細を参照
+4. AIがフィードバックとともに会話を継続（約6〜8ターン）
+5. セッション終了後、日本語で総括レポートと語彙解説を表示
+6. シャドーイング画面で自分の発言とAIの修正文を聞き比べて発音を練習
+7. **Dashboard** タブで成績推移を確認、過去のセッション行をクリックで詳細を参照
 
 ## アーキテクチャ
 
@@ -145,12 +148,12 @@ my-english-app/
 │   ├── Containerfile
 │   └── src/
 │       ├── pages/               # Home / Conversation / Dashboard
-│       ├── components/          # VoiceRecorder / FeedbackPanel / SessionSummary / SessionDetailModal
+│       ├── components/          # VoiceRecorder / FeedbackPanel / SessionSummary / SessionDetailModal / ShadowingPlayer
 │       └── services/api.ts      # バックエンド API クライアント
 ├── db/
 │   └── init.sql                 # テーブル定義
 ├── nginx/
-│   └── nginx.conf               # UBI nginx 用 location ブロック設定
+│   └── nginx.conf               # UBI nginx 用 location ブロック設定（動的DNS解決対応）
 ├── docker-compose.yml           # podman-compose / docker-compose 用
 └── secrets/
     └── .env.example             # APIキー設定テンプレート（.env は gitignore）
@@ -158,4 +161,14 @@ my-english-app/
 
 ## コスト目安
 
-Anthropic API の利用料金は1セッション（約6ターン）あたり **$0.01〜0.03** 程度です。
+Anthropic API の利用料金は1セッション（約6〜8ターン）あたり **$0.01〜0.03** 程度です。
+
+## トラブルシューティング
+
+### ホーム画面やダッシュボードに何も表示されない（502 Bad Gateway）
+
+コンテナを再作成すると nginx が古いバックエンドの IP アドレスをキャッシュして接続に失敗することがあります。フロントエンドコンテナを再起動するか、コンテナイメージを再ビルドしてください。nginx.conf は podman の DNS リゾルバーを使った動的解決に対応済みです。
+
+```bash
+podman restart english-frontend
+```
