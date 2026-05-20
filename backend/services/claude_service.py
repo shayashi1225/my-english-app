@@ -79,14 +79,15 @@ def get_situations():
     return SITUATIONS
 
 
-def start_conversation(situation_id: str) -> dict:
+def start_conversation(situation_id: str, learner_name: str = None) -> dict:
     situation = next((s for s in SITUATIONS if s["id"] == situation_id), None)
     if not situation:
         raise ValueError(f"Unknown situation: {situation_id}")
 
+    name_context = f"\nThe learner's name is {learner_name}. Feel free to use their name naturally in the conversation." if learner_name else ""
     prompt = f"""Start a realistic {situation['title']} conversation.
 
-Set the scene briefly in 1-2 sentences, then ask the user a natural opening question appropriate for this situation.
+Set the scene briefly in 1-2 sentences, then ask the user a natural opening question appropriate for this situation.{name_context}
 
 Return JSON:
 {{
@@ -105,7 +106,7 @@ Return JSON:
     return _parse_json(response.content[0].text)
 
 
-def continue_conversation(situation_id: str, conversation_history: list, user_message: str) -> dict:
+def continue_conversation(situation_id: str, conversation_history: list, user_message: str, learner_name: str = None) -> dict:
     situation = next((s for s in SITUATIONS if s["id"] == situation_id), None)
     if not situation:
         raise ValueError(f"Unknown situation: {situation_id}")
@@ -120,10 +121,11 @@ def continue_conversation(situation_id: str, conversation_history: list, user_me
     messages.append({"role": "user", "content": f"[User said]: {user_message}"})
 
     end_instruction = " This should be the final exchange - wrap up the conversation naturally." if is_near_end else ""
+    name_context = f"\nThe learner's name is {learner_name}. Feel free to use their name naturally." if learner_name else ""
 
     system = f"""{SYSTEM_PROMPT}
 
-Current situation: {situation['title']}
+Current situation: {situation['title']}{name_context}
 Turn count: {turn_count + 1}/6{end_instruction}
 
 Respond only with valid JSON matching the specified structure."""

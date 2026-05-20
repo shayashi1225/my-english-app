@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
 class StartSessionRequest(BaseModel):
     situation_id: str
+    learner_name: str = None
 
 
 class UserTurnRequest(BaseModel):
@@ -24,11 +25,12 @@ def start_session(req: StartSessionRequest, db: DBSession = Depends(get_db)):
     if not situation:
         raise HTTPException(status_code=404, detail="Situation not found")
 
-    result = claude_service.start_conversation(req.situation_id)
+    result = claude_service.start_conversation(req.situation_id, req.learner_name)
 
     session = Session(
         situation_id=req.situation_id,
         situation_title=situation["title"],
+        learner_name=req.learner_name,
     )
     db.add(session)
     db.flush()
@@ -74,7 +76,7 @@ def add_turn(session_id: int, req: UserTurnRequest, db: DBSession = Depends(get_
     db.add(user_turn)
     db.flush()
 
-    result = claude_service.continue_conversation(session.situation_id, history, req.user_text)
+    result = claude_service.continue_conversation(session.situation_id, history, req.user_text, session.learner_name)
     feedback = result.get("feedback") or {}
 
     user_turn.grammar_score = feedback.get("grammar_score")
@@ -164,6 +166,7 @@ def get_session(session_id: int, db: DBSession = Depends(get_db)):
         "id": session.id,
         "situation_id": session.situation_id,
         "situation_title": session.situation_title,
+        "learner_name": session.learner_name,
         "started_at": session.started_at,
         "completed_at": session.completed_at,
         "total_score": session.total_score,

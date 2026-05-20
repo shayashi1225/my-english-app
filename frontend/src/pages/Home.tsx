@@ -5,14 +5,31 @@ import { api, Situation } from "../services/api";
 export default function Home() {
   const [situations, setSituations] = useState<Situation[]>([]);
   const [starting, setStarting] = useState<string | null>(null);
+  const [learnerName, setLearnerName] = useState("");
+  const [editingName, setEditingName] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => { api.getSituations().then(setSituations); }, []);
+  useEffect(() => {
+    api.getSituations().then(setSituations);
+    const saved = localStorage.getItem("learner_name") || "";
+    setLearnerName(saved);
+  }, []);
+
+  function handleSaveName(name: string) {
+    localStorage.setItem("learner_name", name);
+    setLearnerName(name);
+    setEditingName(false);
+  }
 
   async function handleSelect(situation: Situation) {
+    if (!learnerName.trim()) {
+      alert("Please enter your name first");
+      setEditingName(true);
+      return;
+    }
     setStarting(situation.id);
     try {
-      const res = await api.startSession(situation.id);
+      const res = await api.startSession(situation.id, learnerName);
       navigate(`/conversation/${res.session_id}`, {
         state: { aiMessage: res.ai_message, situation: res.situation },
       });
@@ -23,6 +40,42 @@ export default function Home() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
+      {/* Name Section */}
+      <div className="mb-12 cyber-card">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-mono text-xs tracking-widest text-cyber-blue mb-2">◈ LEARNER NAME</p>
+            {editingName ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  defaultValue={learnerName}
+                  placeholder="Enter your name"
+                  autoFocus
+                  className="px-3 py-2 bg-cyber-bg border border-cyber-cyan text-cyber-cyan font-mono text-sm rounded"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSaveName(e.currentTarget.value);
+                    } else if (e.key === "Escape") {
+                      setEditingName(false);
+                    }
+                  }}
+                  onBlur={(e) => handleSaveName(e.currentTarget.value)}
+                />
+              </div>
+            ) : (
+              <p className="font-mono text-lg text-cyber-cyan neon-cyan">{learnerName || "Not set"}</p>
+            )}
+          </div>
+          <button
+            onClick={() => setEditingName(!editingName)}
+            className="cyber-btn-blue px-4 py-2 text-sm"
+          >
+            {editingName ? "Save" : "Edit"}
+          </button>
+        </div>
+      </div>
+
       {/* Hero */}
       <div className="text-center mb-12">
         <p className="font-mono text-xs tracking-[0.3em] text-cyber-blue mb-3 neon-blue">

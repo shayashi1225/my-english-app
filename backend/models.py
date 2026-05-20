@@ -10,6 +10,7 @@ class Session(Base):
     id = Column(Integer, primary_key=True, index=True)
     situation_id = Column(String(50), nullable=False)
     situation_title = Column(String(200), nullable=False)
+    learner_name = Column(String(100), nullable=True)
     started_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     total_score = Column(Float, nullable=True)

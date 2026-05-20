@@ -40,6 +40,7 @@ export interface SessionSummary {
 export interface SessionDetail {
   id: number;
   situation_title: string;
+  learner_name: string | null;
   started_at: string;
   completed_at: string | null;
   total_score: number | null;
@@ -89,10 +90,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const api = {
   getSituations: () => request<Situation[]>("/situations"),
 
-  startSession: (situation_id: string) =>
+  startSession: (situation_id: string, learner_name: string) =>
     request<{ session_id: number; situation: Situation; ai_message: string }>("/sessions", {
       method: "POST",
-      body: JSON.stringify({ situation_id }),
+      body: JSON.stringify({ situation_id, learner_name }),
     }),
 
   sendTurn: (sessionId: number, user_text: string) =>
