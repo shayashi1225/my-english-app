@@ -4,13 +4,15 @@
 
 ## 機能
 
-- **6つのビジネスシチュエーション** — スタンドアップ・コードレビュー・クライアントプレゼン・インシデント対応・スプリント計画・1on1
+- **7つのビジネスシチュエーション** — スタンドアップ・コードレビュー・クライアントプレゼン・インシデント対応・スプリント計画・1on1・同僚とのカジュアルな雑談
 - **学習者名の設定** — ホーム画面で名前を入力するとAIが会話中に名前で呼びかける（localStorageに保存）
 - **音声会話** — AIが英語で話しかけ（gTTS）、ユーザーはマイクで英語回答（Web Speech API）
 - **リアルタイムフィードバック** — ターンごとに文法スコア・修正案・発音アドバイスを表示
 - **シャドーイング練習** — セッションサマリー後に自分の発言とAIの修正文を聞き比べて発音を練習
 - **セッションサマリー（日本語）** — 終了後に総括・良かった点・改善点・語彙解説をレポート
-- **ダッシュボード** — スコア推移グラフ・ストリーク・シチュエーション別成績・過去セッションの詳細参照
+- **間隔反復（SRS）復習** — セッションで登場した語彙・表現をLeitner方式のフラッシュカードで後日復習。忘却曲線に沿って出題間隔が自動調整される
+- **文法の弱点トラッキング** — 文法ミスを冠詞・時制・前置詞などの固定カテゴリでタグ付けし、ダッシュボードで頻出パターンを可視化
+- **ダッシュボード** — スコア推移グラフ・ストリーク・シチュエーション別成績・よくある文法の弱点・過去セッションの詳細参照
 
 ## 必要環境
 
@@ -119,7 +121,8 @@ npm install && npm run dev
 4. AIがフィードバックとともに会話を継続（約6〜8ターン）
 5. セッション終了後、日本語で総括レポートと語彙解説を表示
 6. シャドーイング画面で自分の発言とAIの修正文を聞き比べて発音を練習
-7. **Dashboard** タブで成績推移を確認、過去のセッション行をクリックで詳細を参照
+7. **Review** タブで、過去のセッションに登場した語彙を復習（意味を見て「もう一度／あいまい／覚えた」で自己採点）。ナビゲーションのバッジで復習期日が来た件数が確認できる
+8. **Dashboard** タブで成績推移・よくある文法の弱点を確認、過去のセッション行をクリックで詳細を参照
 
 ## アーキテクチャ
 
@@ -141,14 +144,16 @@ my-english-app/
 │   ├── Containerfile
 │   ├── main.py                  # FastAPI エントリポイント
 │   ├── models.py                # DB モデル
-│   ├── routers/                 # sessions / situations / dashboard / tts
+│   ├── routers/                 # sessions / situations / dashboard / review / tts
 │   └── services/
-│       └── claude_service.py    # Claude API 統合・プロンプト定義
+│       ├── claude_service.py    # Claude API 統合・プロンプト定義・文法カテゴリタクソノミー
+│       └── review_service.py    # 間隔反復（Leitner方式）のスケジューリングロジック
 ├── frontend/
 │   ├── Containerfile
 │   └── src/
-│       ├── pages/               # Home / Conversation / Dashboard
-│       ├── components/          # VoiceRecorder / FeedbackPanel / SessionSummary / SessionDetailModal / ShadowingPlayer
+│       ├── pages/               # Home / Conversation / Review / Dashboard
+│       ├── components/          # VoiceRecorder / FeedbackPanel / SessionSummary / SessionDetailModal / ShadowingPlayer / Icons
+│       ├── lib/tts.ts           # 音声合成再生の共通ヘルパー
 │       └── services/api.ts      # バックエンド API クライアント
 ├── db/
 │   └── init.sql                 # テーブル定義
