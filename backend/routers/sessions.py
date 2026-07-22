@@ -81,6 +81,7 @@ def add_turn(session_id: int, req: UserTurnRequest, db: DBSession = Depends(get_
 
     user_turn.grammar_score = feedback.get("grammar_score")
     user_turn.grammar_feedback = "; ".join(feedback.get("grammar_issues", []))
+    user_turn.grammar_issue_categories = ",".join(feedback.get("grammar_issue_categories", []))
     user_turn.corrected_text = feedback.get("corrected_text")
     user_turn.pronunciation_feedback = "; ".join(feedback.get("pronunciation_tips", []))
 

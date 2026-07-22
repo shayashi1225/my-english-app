@@ -1,10 +1,19 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Conversation from "./pages/Conversation";
 import Dashboard from "./pages/Dashboard";
+import Review from "./pages/Review";
+import { api } from "./services/api";
 
 function NavBar() {
   const location = useLocation();
+  const [dueCount, setDueCount] = useState(0);
+
+  useEffect(() => {
+    api.getReviewQueue(1).then((q) => setDueCount(q.due_count)).catch(() => {});
+  }, [location.pathname]);
+
   if (location.pathname.startsWith("/conversation")) return null;
 
   return (
@@ -16,8 +25,9 @@ function NavBar() {
         <div className="flex gap-8 text-xs font-mono uppercase tracking-widest">
           {[
             { to: "/", label: "Practice" },
+            { to: "/review", label: "Review", badge: dueCount },
             { to: "/dashboard", label: "Dashboard" },
-          ].map(({ to, label }) => (
+          ].map(({ to, label, badge }) => (
             <Link
               key={to}
               to={to}
@@ -28,6 +38,11 @@ function NavBar() {
               }
             >
               {label}
+              {!!badge && (
+                <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-cyber-blue text-white text-[10px] font-mono align-middle normal-case tracking-normal">
+                  {badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -45,6 +60,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/conversation/:sessionId" element={<Conversation />} />
+            <Route path="/review" element={<Review />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>

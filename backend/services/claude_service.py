@@ -13,6 +13,41 @@ def _parse_json(text: str) -> dict:
     text = re.sub(r"\s*```$", "", text)
     return json.loads(text.strip())
 
+
+GRAMMAR_ISSUE_CATEGORIES = [
+    "articles",
+    "subject_verb_agreement",
+    "tense",
+    "prepositions",
+    "word_order",
+    "singular_plural",
+    "word_choice",
+    "pronouns",
+    "sentence_structure",
+    "other",
+]
+
+GRAMMAR_CATEGORY_LABELS_JA = {
+    "articles": "冠詞",
+    "subject_verb_agreement": "主語と動詞の一致",
+    "tense": "時制",
+    "prepositions": "前置詞",
+    "word_order": "語順",
+    "singular_plural": "単数・複数",
+    "word_choice": "語彙選択",
+    "pronouns": "代名詞",
+    "sentence_structure": "文構造",
+    "other": "その他",
+}
+
+
+def _normalize_categories(categories) -> list:
+    if not isinstance(categories, list):
+        return []
+    valid = set(GRAMMAR_ISSUE_CATEGORIES)
+    return [c if c in valid else "other" for c in categories]
+
+
 SITUATIONS = [
     {
         "id": "daily_standup",
@@ -50,6 +85,12 @@ SITUATIONS = [
         "description": "Discuss career growth, project status, and feedback with your manager",
         "icon": "👤",
     },
+    {
+        "id": "casual_chat",
+        "title": "Casual Chat with a Colleague",
+        "description": "Small talk about weekend plans, hobbies, and life outside work over coffee",
+        "icon": "☕",
+    },
 ]
 
 SYSTEM_PROMPT = """You are an experienced English conversation coach helping Japanese IT professionals improve their business English.
@@ -65,6 +106,7 @@ When responding to the user's message, always return a JSON object with this str
   "feedback": {
     "grammar_score": <float 0-10>,
     "grammar_issues": ["issue1", "issue2"],
+    "grammar_issue_categories": ["category1", "category2"],
     "corrected_text": "The corrected version of what the user said (only if needed)",
     "pronunciation_tips": ["tip1", "tip2"],
     "positive_feedback": "Something the user did well"
@@ -72,7 +114,9 @@ When responding to the user's message, always return a JSON object with this str
   "is_last_turn": <boolean, true only after 6-8 exchanges>
 }
 
-Keep the conversation natural and encouraging. Focus on IT business vocabulary and common business English patterns."""
+For "grammar_issue_categories": provide exactly one category code per entry in "grammar_issues", in the same order, so each issue has a matching category. Use ONLY these exact lowercase codes: __CATEGORIES__. If "grammar_issues" is empty, use an empty array [].
+
+Keep the conversation natural and encouraging. Match the vocabulary and tone to the situation: business vocabulary for formal scenarios, and relaxed, informal small talk for casual scenarios like a coffee chat with a colleague.""".replace("__CATEGORIES__", ", ".join(GRAMMAR_ISSUE_CATEGORIES))
 
 
 def get_situations():
@@ -140,6 +184,10 @@ Respond only with valid JSON matching the specified structure."""
     result = _parse_json(response.content[0].text)
     if is_near_end:
         result["is_last_turn"] = True
+    if result.get("feedback"):
+        result["feedback"]["grammar_issue_categories"] = _normalize_categories(
+            result["feedback"].get("grammar_issue_categories", [])
+        )
     return result
 
 

@@ -1,9 +1,11 @@
+from collections import Counter
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, cast, Date
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from models import Session, ConversationTurn, SessionVocabulary
+from services.claude_service import GRAMMAR_CATEGORY_LABELS_JA
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -49,6 +51,8 @@ def get_dashboard(db: DBSession = Depends(get_db)):
         .all()
     )
 
+    weak_grammar_categories = _aggregate_weak_categories(db)
+
     return {
         "total_sessions": total_sessions or 0,
         "average_score": round(avg_score, 1) if avg_score else 0,
@@ -80,7 +84,33 @@ def get_dashboard(db: DBSession = Depends(get_db)):
             }
             for row in situation_stats
         ],
+        "weak_grammar_categories": weak_grammar_categories,
     }
+
+
+def _aggregate_weak_categories(db: DBSession) -> list:
+    rows = (
+        db.query(ConversationTurn.grammar_issue_categories)
+        .join(Session, Session.id == ConversationTurn.session_id)
+        .filter(
+            Session.completed_at.isnot(None),
+            ConversationTurn.grammar_issue_categories.isnot(None),
+            ConversationTurn.grammar_issue_categories != "",
+        )
+        .all()
+    )
+
+    counter = Counter()
+    for (raw,) in rows:
+        for code in raw.split(","):
+            code = code.strip()
+            if code:
+                counter[code] += 1
+
+    return [
+        {"code": code, "label": GRAMMAR_CATEGORY_LABELS_JA.get(code, code), "count": count}
+        for code, count in counter.most_common(5)
+    ]
 
 
 def _calculate_streak(db: DBSession) -> int:

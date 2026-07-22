@@ -33,6 +33,7 @@ class ConversationTurn(Base):
     grammar_score = Column(Float, nullable=True)
     pronunciation_feedback = Column(Text, nullable=True)
     grammar_feedback = Column(Text, nullable=True)
+    grammar_issue_categories = Column(Text, nullable=True)
     corrected_text = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -41,11 +42,18 @@ class ConversationTurn(Base):
 
 class SessionVocabulary(Base):
     __tablename__ = "session_vocabulary"
+    __table_args__ = (
+        CheckConstraint("box BETWEEN 1 AND 5", name="chk_session_vocabulary_box"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
     word_or_phrase = Column(String(200), nullable=False)
     explanation = Column(Text, nullable=False)
     example_sentence = Column(Text, nullable=True)
+    box = Column(Integer, nullable=False, default=1)
+    next_review_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_reviewed_at = Column(DateTime, nullable=True)
+    review_count = Column(Integer, nullable=False, default=0)
 
     session = relationship("Session", back_populates="vocabulary")

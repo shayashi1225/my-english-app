@@ -15,15 +15,10 @@ function ScoreCircle({ score, label }: { score: number; label: string }) {
     score >= 80 ? "text-cyber-green" :
     score >= 60 ? "text-cyber-yellow" :
     "text-cyber-red";
-  const shadow =
-    score >= 80 ? "0 0 12px rgba(0,255,136,0.5)" :
-    score >= 60 ? "0 0 12px rgba(255,204,0,0.5)" :
-    "0 0 12px rgba(255,45,85,0.5)";
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className={`text-4xl font-bold font-mono ${color}`}
-           style={{ textShadow: shadow }}>
+      <div className={`text-4xl font-bold font-mono ${color}`}>
         {Math.round(score)}
       </div>
       <div className="text-xs font-mono text-cyber-cyan/40 tracking-widest">{label}</div>
@@ -60,9 +55,9 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
       <div className="cyber-card">
         <div className="flex justify-around mb-6 py-2">
           <ScoreCircle score={summary.total_score} label="総合" />
-          <div className="w-px" style={{ background: "rgba(0,255,255,0.1)" }} />
+          <div className="w-px bg-cyber-cyan/10" />
           <ScoreCircle score={summary.grammar_score} label="文法" />
-          <div className="w-px" style={{ background: "rgba(0,255,255,0.1)" }} />
+          <div className="w-px bg-cyber-cyan/10" />
           <ScoreCircle score={summary.fluency_score} label="流暢さ" />
         </div>
         <div className="border-t border-cyber-border pt-4">
@@ -90,8 +85,7 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {summary.strengths.length > 0 && (
-              <div className="rounded-xl p-5 border border-cyber-green/30"
-                   style={{ background: "rgba(0,255,136,0.05)" }}>
+              <div className="rounded-xl p-5 border border-cyber-green/30 bg-cyber-green/5">
                 <h3 className="font-mono text-xs tracking-widest text-cyber-green mb-3 neon-green">
                   ◈ 良かった点
                 </h3>
@@ -105,10 +99,8 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
               </div>
             )}
             {summary.areas_for_improvement.length > 0 && (
-              <div className="rounded-xl p-5 border border-cyber-yellow/30"
-                   style={{ background: "rgba(255,204,0,0.05)" }}>
-                <h3 className="font-mono text-xs tracking-widest text-cyber-yellow mb-3"
-                    style={{ textShadow: "0 0 8px rgba(255,204,0,0.5)" }}>
+              <div className="rounded-xl p-5 border border-cyber-yellow/30 bg-cyber-yellow/5">
+                <h3 className="font-mono text-xs tracking-widest text-cyber-yellow mb-3">
                   ◈ 改善点
                 </h3>
                 <ul className="space-y-2">

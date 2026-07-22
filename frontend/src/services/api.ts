@@ -62,6 +62,12 @@ export interface SessionDetail {
   }[];
 }
 
+export interface WeakGrammarCategory {
+  code: string;
+  label: string;
+  count: number;
+}
+
 export interface DashboardData {
   total_sessions: number;
   average_score: number;
@@ -76,7 +82,26 @@ export interface DashboardData {
   }[];
   daily_scores: { date: string; avg_score: number; count: number }[];
   situation_stats: { title: string; count: number; avg_score: number }[];
+  weak_grammar_categories: WeakGrammarCategory[];
 }
+
+export interface ReviewItem {
+  id: number;
+  word_or_phrase: string;
+  explanation: string;
+  example_sentence: string | null;
+  box: number;
+  next_review_at: string;
+  last_reviewed_at: string | null;
+  situation_title: string;
+}
+
+export interface ReviewQueue {
+  due_count: number;
+  items: ReviewItem[];
+}
+
+export type ReviewRating = "again" | "hard" | "good";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(BASE + path, {
@@ -109,4 +134,13 @@ export const api = {
 
   getSession: (sessionId: number) =>
     request<SessionDetail>(`/sessions/${sessionId}`),
+
+  getReviewQueue: (limit = 20) =>
+    request<ReviewQueue>(`/review/queue?limit=${limit}`),
+
+  answerReview: (vocabId: number, rating: ReviewRating) =>
+    request<{ id: number; box: number; next_review_at: string }>(
+      `/review/${vocabId}/answer`,
+      { method: "POST", body: JSON.stringify({ rating }) }
+    ),
 };

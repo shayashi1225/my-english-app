@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { MicIcon, StopIcon } from "./Icons";
 
 interface Props {
   onResult: (text: string) => void;
@@ -76,16 +77,15 @@ export default function VoiceRecorder({ onResult, disabled }: Props) {
       <button
         onClick={toggle}
         disabled={disabled}
-        className={`relative w-20 h-20 rounded-full flex items-center justify-center text-2xl
+        className={`relative w-20 h-20 rounded-full flex items-center justify-center p-6
           transition-all duration-200 font-mono border-2
           ${isRecording
             ? "recording-pulse border-cyber-red text-cyber-red bg-cyber-bg2"
             : "border-cyber-cyan text-cyber-cyan bg-cyber-bg2 hover:shadow-neon-cyan"
           }
           disabled:opacity-30 disabled:cursor-not-allowed`}
-        style={isRecording ? { boxShadow: "0 0 16px rgba(255,45,85,0.6)" } : {}}
       >
-        {isRecording ? "⏹" : "🎤"}
+        {isRecording ? <StopIcon /> : <MicIcon />}
       </button>
 
       <p className="text-xs font-mono tracking-widest text-cyber-cyan/60">
@@ -93,8 +93,7 @@ export default function VoiceRecorder({ onResult, disabled }: Props) {
       </p>
 
       {transcript && (
-        <div className="w-full max-w-md border border-cyber-border rounded-lg px-4 py-3 text-cyber-cyan/80 text-sm font-mono italic"
-             style={{ background: "rgba(0,0,68,0.6)" }}>
+        <div className="w-full max-w-md border border-cyber-border rounded-lg px-4 py-3 text-cyber-cyan/80 text-sm font-mono italic bg-cyber-bg3">
           {transcript}
         </div>
       )}

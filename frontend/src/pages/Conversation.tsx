@@ -4,6 +4,7 @@ import { api, Feedback, SessionSummary, Situation } from "../services/api";
 import VoiceRecorder from "../components/VoiceRecorder";
 import FeedbackPanel from "../components/FeedbackPanel";
 import SessionSummaryView from "../components/SessionSummary";
+import { SpeakerIcon } from "../components/Icons";
 
 interface Message { speaker: "ai" | "user"; text: string; }
 type Phase = "ready" | "conversation" | "processing" | "summary";
@@ -88,10 +89,9 @@ export default function Conversation() {
   const userTurns = messages.filter((m) => m.speaker === "user").length;
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: "#000033" }}>
+    <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="border-b border-cyber-border px-4 py-3 flex items-center gap-3"
-           style={{ background: "rgba(0,0,51,0.9)" }}>
+      <div className="border-b border-cyber-border px-4 py-3 flex items-center gap-3 bg-white">
         <button
           onClick={() => { if (confirm("End this session?")) navigate("/"); }}
           className="text-cyber-cyan/40 hover:text-cyber-red transition-colors font-mono"
@@ -103,16 +103,14 @@ export default function Conversation() {
         {/* Progress bar */}
         <div className="w-24 h-1 bg-cyber-bg3 rounded-full overflow-hidden">
           <div className="h-full bg-cyber-cyan transition-all duration-500 rounded-full"
-               style={{ width: `${(userTurns / 6) * 100}%`, boxShadow: "0 0 6px #00FFFF" }} />
+               style={{ width: `${(userTurns / 6) * 100}%` }} />
         </div>
-        <div className={`w-2 h-2 rounded-full ml-2 ${isSpeaking ? "bg-cyber-blue animate-pulse" : "bg-cyber-green"}`}
-             style={isSpeaking ? { boxShadow: "0 0 6px #1E90FF" } : { boxShadow: "0 0 6px #00FF88" }} />
+        <div className={`w-2 h-2 rounded-full ml-2 ${isSpeaking ? "bg-cyber-blue animate-pulse" : "bg-cyber-green"}`} />
       </div>
 
       {/* Speech error */}
       {speechError && (
-        <div className="border-b border-cyber-red/40 px-4 py-2 text-cyber-red text-xs font-mono flex justify-between"
-             style={{ background: "rgba(255,45,85,0.08)" }}>
+        <div className="border-b border-cyber-red/40 px-4 py-2 text-cyber-red text-xs font-mono flex justify-between bg-cyber-red/5">
           <span>⚠ {speechError}</span>
           <button onClick={() => setSpeechError(null)} className="font-bold ml-4">✕</button>
         </div>
@@ -124,21 +122,17 @@ export default function Conversation() {
           <div key={i} className={`flex ${msg.speaker === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-sm lg:max-w-md px-4 py-3 rounded-lg text-sm font-mono leading-relaxed border
               ${msg.speaker === "ai"
-                ? "border-cyber-border text-cyber-cyan"
-                : "border-cyber-blue text-white"
+                ? "border-cyber-border text-cyber-cyan bg-cyber-bg3"
+                : "border-cyber-blue text-cyber-cyan bg-cyber-blue/8"
               }`}
-              style={{
-                background: msg.speaker === "ai" ? "rgba(0,0,68,0.8)" : "rgba(30,144,255,0.15)",
-                boxShadow: msg.speaker === "ai" ? "none" : "0 0 8px rgba(30,144,255,0.2)",
-              }}
             >
               {msg.speaker === "ai" && (
                 <button
                   onClick={() => doSpeak(msg.text)}
                   disabled={isSpeaking}
-                  className="float-right ml-2 text-cyber-cyan/40 hover:text-cyber-cyan disabled:opacity-20 transition-colors"
+                  className="float-right ml-2 w-4 h-4 text-cyber-cyan/40 hover:text-cyber-cyan disabled:opacity-20 transition-colors"
                   title="Replay"
-                >🔊</button>
+                ><SpeakerIcon /></button>
               )}
               {msg.text}
             </div>
@@ -147,8 +141,7 @@ export default function Conversation() {
 
         {processing && (
           <div className="flex justify-start">
-            <div className="border border-cyber-border rounded-lg px-4 py-3 font-mono text-xs text-cyber-cyan/60"
-                 style={{ background: "rgba(0,0,68,0.8)" }}>
+            <div className="border border-cyber-border rounded-lg px-4 py-3 font-mono text-xs text-cyber-cyan/60 bg-cyber-bg3">
               <span className="animate-pulse">▸ PROCESSING</span>
               {[0,1,2].map((i) => (
                 <span key={i} className="inline-block w-1 h-1 bg-cyber-cyan rounded-full mx-0.5 animate-bounce"
@@ -165,15 +158,14 @@ export default function Conversation() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-cyber-border px-4 py-5"
-           style={{ background: "rgba(0,0,51,0.9)" }}>
+      <div className="border-t border-cyber-border px-4 py-5 bg-white">
         {phase === "ready" ? (
           <div className="flex flex-col items-center gap-3">
             <p className="text-xs font-mono tracking-widest text-cyber-cyan/50">
               ▸ READY TO BEGIN SESSION
             </p>
-            <button onClick={handleStart} className="cyber-btn text-base px-10 py-3 animate-pulse-neon">
-              🔊 START SESSION
+            <button onClick={handleStart} className="cyber-btn text-base px-10 py-3 animate-pulse-neon flex items-center gap-2">
+              <span className="w-4 h-4"><SpeakerIcon /></span> START SESSION
             </button>
           </div>
         ) : (

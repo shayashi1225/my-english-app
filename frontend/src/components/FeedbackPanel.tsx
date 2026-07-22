@@ -29,8 +29,7 @@ export default function FeedbackPanel({ feedback, userText }: Props) {
       </blockquote>
 
       {feedback.positive_feedback && (
-        <div className="flex gap-2 text-cyber-green text-xs font-mono border border-cyber-green/30 rounded px-3 py-2"
-             style={{ background: "rgba(0,255,136,0.05)" }}>
+        <div className="flex gap-2 text-cyber-green text-xs font-mono border border-cyber-green/30 rounded px-3 py-2 bg-cyber-green/5">
           <span>✓</span><span>{feedback.positive_feedback}</span>
         </div>
       )}
@@ -38,8 +37,7 @@ export default function FeedbackPanel({ feedback, userText }: Props) {
       {feedback.corrected_text && feedback.corrected_text !== userText && (
         <div className="text-xs">
           <p className="text-cyber-blue font-mono tracking-widest mb-1">▸ CORRECTION</p>
-          <p className="font-mono text-cyber-cyan border border-cyber-border rounded px-3 py-2"
-             style={{ background: "rgba(0,0,68,0.6)" }}>
+          <p className="font-mono text-cyber-cyan border border-cyber-border rounded px-3 py-2 bg-cyber-bg3">
             "{feedback.corrected_text}"
           </p>
         </div>

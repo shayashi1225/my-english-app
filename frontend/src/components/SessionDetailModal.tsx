@@ -13,14 +13,9 @@ function Score({ value, label }: { value: number | null; label: string }) {
     value >= 80 ? "text-cyber-green" :
     value >= 60 ? "text-cyber-yellow" :
     "text-cyber-red";
-  const shadow =
-    value >= 80 ? "0 0 10px rgba(0,255,136,0.5)" :
-    value >= 60 ? "0 0 10px rgba(255,204,0,0.5)" :
-    "0 0 10px rgba(255,45,85,0.5)";
   return (
     <div className="flex flex-col items-center">
-      <span className={`text-3xl font-bold font-mono ${color}`}
-            style={{ textShadow: shadow }}>
+      <span className={`text-3xl font-bold font-mono ${color}`}>
         {Math.round(value)}
       </span>
       <span className="text-xs font-mono text-cyber-cyan/40 mt-0.5 tracking-widest">{label}</span>
@@ -42,15 +37,14 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,20,0.85)", backdropFilter: "blur(4px)" }}
+      style={{ background: "rgba(22,22,22,0.5)", backdropFilter: "blur(2px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl border border-cyber-border"
-           style={{ background: "#000033", boxShadow: "0 0 40px rgba(0,255,255,0.15), 0 0 80px rgba(30,144,255,0.1)" }}>
+      <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl border-[1.5px] border-cyber-cyan bg-white"
+           style={{ boxShadow: "4px 4px 0 rgba(22,22,22,0.9)" }}>
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-cyber-border flex items-start justify-between"
-             style={{ background: "rgba(0,0,51,0.9)" }}>
+        <div className="px-6 py-4 border-b border-cyber-border flex items-start justify-between bg-white">
           <div>
             <p className="font-mono text-xs tracking-widest text-cyber-blue mb-1">◈ SESSION DETAIL</p>
             <p className="font-bold font-mono text-cyber-cyan text-base">
@@ -70,8 +64,7 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
 
         {loading ? (
           <div className="flex-1 flex items-center justify-center py-16">
-            <div className="w-8 h-8 rounded-full border-2 border-cyber-cyan border-t-transparent animate-spin"
-                 style={{ boxShadow: "0 0 10px rgba(0,255,255,0.3)" }} />
+            <div className="w-8 h-8 rounded-full border-2 border-cyber-cyan border-t-transparent animate-spin" />
           </div>
         ) : !detail ? (
           <div className="flex-1 flex items-center justify-center font-mono text-cyber-cyan/30 py-16 text-sm">
@@ -119,8 +112,7 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
               ) : tab === "summary" ? (
                 <>
                   {detail.summary && (
-                    <div className="rounded-lg border border-cyber-border px-4 py-4 text-sm font-mono text-cyber-cyan/70 leading-relaxed"
-                         style={{ background: "rgba(0,0,68,0.6)" }}>
+                    <div className="rounded-lg border border-cyber-border px-4 py-4 text-sm font-mono text-cyber-cyan/70 leading-relaxed bg-cyber-bg3">
                       {detail.summary}
                     </div>
                   )}
@@ -132,8 +124,7 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
                       </h3>
                       <div className="space-y-3">
                         {detail.vocabulary.map((v, i) => (
-                          <div key={i} className="rounded-lg border border-cyber-border px-4 py-3"
-                               style={{ background: "rgba(0,0,68,0.6)" }}>
+                          <div key={i} className="rounded-lg border border-cyber-border px-4 py-3 bg-cyber-bg3">
                             <p className="font-mono font-semibold text-cyber-blue text-sm mb-1">
                               "{v.word_or_phrase}"
                             </p>
@@ -163,12 +154,8 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
                         <div
                           className={`px-4 py-3 rounded-lg text-sm font-mono leading-relaxed border
                             ${turn.speaker === "ai"
-                              ? "border-cyber-border text-cyber-cyan"
-                              : "border-cyber-blue text-white"}`}
-                          style={{
-                            background: turn.speaker === "ai" ? "rgba(0,0,68,0.8)" : "rgba(30,144,255,0.15)",
-                            boxShadow: turn.speaker === "user" ? "0 0 8px rgba(30,144,255,0.15)" : "none",
-                          }}
+                              ? "border-cyber-border text-cyber-cyan bg-cyber-bg3"
+                              : "border-cyber-blue text-cyber-cyan bg-cyber-blue/8"}`}
                         >
                           {turn.text}
                         </div>

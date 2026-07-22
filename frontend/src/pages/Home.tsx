@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, Situation } from "../services/api";
+import { SituationIcon } from "../components/Icons";
 
 export default function Home() {
   const [situations, setSituations] = useState<Situation[]>([]);
@@ -99,7 +100,7 @@ export default function Home() {
             disabled={starting !== null}
             className="cyber-card text-left group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <div className="text-3xl mb-3">{s.icon}</div>
+            <div className="w-9 h-9 mb-3 text-cyber-cyan"><SituationIcon id={s.id} /></div>
             <h2 className="font-mono font-semibold text-cyber-cyan text-sm tracking-wide mb-2 group-hover:neon-cyan">
               {s.title}
             </h2>
@@ -114,8 +115,7 @@ export default function Home() {
       </div>
 
       {/* Footer info */}
-      <div className="mt-12 border border-cyber-border rounded-xl p-5 text-center"
-           style={{ background: "rgba(0,0,68,0.6)" }}>
+      <div className="mt-12 border border-cyber-border rounded-xl p-5 text-center bg-cyber-bg3">
         <p className="font-mono text-xs tracking-widest text-cyber-blue">
           ◈ ONE SESSION / DAY &nbsp;|&nbsp; 5–10 MIN &nbsp;|&nbsp; VOICE-BASED &nbsp;|&nbsp; CHROME REQUIRED
         </p>

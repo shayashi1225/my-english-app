@@ -29,8 +29,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-10 h-10 rounded-full border-2 border-cyber-cyan border-t-transparent animate-spin"
-             style={{ boxShadow: "0 0 12px rgba(0,255,255,0.4)" }} />
+        <div className="w-10 h-10 rounded-full border-2 border-cyber-cyan border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -68,39 +67,38 @@ export default function Dashboard() {
           </h2>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data.daily_scores}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,255,255,0.08)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(22,22,22,0.1)" />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 10, fill: "#00FFFF", opacity: 0.5, fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "#161616", opacity: 0.5, fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
                 tickFormatter={(v) => v.slice(5)}
-                axisLine={{ stroke: "rgba(0,255,255,0.2)" }}
+                axisLine={{ stroke: "rgba(22,22,22,0.2)" }}
                 tickLine={false}
               />
               <YAxis
                 domain={[0, 100]}
-                tick={{ fontSize: 10, fill: "#00FFFF", opacity: 0.5, fontFamily: "monospace" }}
-                axisLine={{ stroke: "rgba(0,255,255,0.2)" }}
+                tick={{ fontSize: 10, fill: "#161616", opacity: 0.5, fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
+                axisLine={{ stroke: "rgba(22,22,22,0.2)" }}
                 tickLine={false}
               />
               <Tooltip
                 formatter={(v: number) => [`${v}`, "Score"]}
                 labelFormatter={(l) => `Date: ${l}`}
                 contentStyle={{
-                  background: "rgba(0,0,68,0.95)",
-                  border: "1px solid rgba(0,255,255,0.3)",
+                  background: "#FFFFFF",
+                  border: "1.5px solid #161616",
                   borderRadius: "8px",
-                  fontFamily: "monospace",
+                  fontFamily: "'Helvetica Neue', Arial, sans-serif",
                   fontSize: "12px",
-                  color: "#00FFFF",
+                  color: "#161616",
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="avg_score"
-                stroke="#00FFFF"
+                stroke="#E4002B"
                 strokeWidth={2}
-                dot={{ r: 3, fill: "#00FFFF", strokeWidth: 0 }}
-                style={{ filter: "drop-shadow(0 0 4px #00FFFF)" }}
+                dot={{ r: 3, fill: "#E4002B", strokeWidth: 0 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -117,20 +115,42 @@ export default function Dashboard() {
               <div key={s.title} className="flex items-center gap-3">
                 <span className="text-xs font-mono text-cyber-cyan/60 w-52 truncate">{s.title}</span>
                 <div className="flex-1 h-2 rounded-full overflow-hidden"
-                     style={{ background: "rgba(0,255,255,0.1)", border: "1px solid rgba(0,255,255,0.15)" }}>
+                     style={{ background: "#F1F1F1", border: "1px solid rgba(22,22,22,0.12)" }}>
                   <div
                     className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${s.avg_score}%`,
-                      background: "linear-gradient(90deg, #1E90FF, #00FFFF)",
-                      boxShadow: "0 0 6px rgba(0,255,255,0.4)",
-                    }}
+                    style={{ width: `${s.avg_score}%`, background: "#E4002B" }}
                   />
                 </div>
                 <span className="text-xs font-mono text-cyber-cyan w-10 text-right">{s.avg_score}</span>
                 <span className="text-xs font-mono text-cyber-cyan/30 w-12">×{s.count}</span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {data.weak_grammar_categories.length > 0 && (
+        <div className="cyber-card">
+          <h2 className="font-mono text-xs tracking-widest text-cyber-blue mb-5">
+            ◈ よくある文法の弱点 TOP5
+          </h2>
+          <div className="space-y-4">
+            {(() => {
+              const max = Math.max(...data.weak_grammar_categories.map((c) => c.count));
+              return data.weak_grammar_categories.map((c) => (
+                <div key={c.code} className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-cyber-cyan/60 w-40 truncate">{c.label}</span>
+                  <div className="flex-1 h-2 rounded-full overflow-hidden"
+                       style={{ background: "#F1F1F1", border: "1px solid rgba(22,22,22,0.12)" }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${(c.count / max) * 100}%`, background: "#E4002B" }}
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-cyber-cyan w-10 text-right">×{c.count}</span>
+                </div>
+              ));
+            })()}
           </div>
         </div>
       )}
@@ -145,10 +165,7 @@ export default function Dashboard() {
               <button
                 key={s.id}
                 onClick={() => setSelectedSessionId(s.id)}
-                className="w-full py-3 px-3 flex items-center justify-between rounded-lg transition-all duration-200 text-left group"
-                style={{ background: "transparent" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,255,255,0.05)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                className="w-full py-3 px-3 flex items-center justify-between rounded-lg transition-all duration-200 text-left group hover:bg-cyber-bg3"
               >
                 <div>
                   <p className="text-sm font-mono text-cyber-cyan group-hover:neon-cyan transition-all">

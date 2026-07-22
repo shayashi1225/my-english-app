@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS conversation_turns (
     grammar_score FLOAT,
     pronunciation_feedback TEXT,
     grammar_feedback TEXT,
+    grammar_issue_categories TEXT,
     corrected_text TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -28,8 +29,13 @@ CREATE TABLE IF NOT EXISTS session_vocabulary (
     session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
     word_or_phrase VARCHAR(200) NOT NULL,
     explanation TEXT NOT NULL,
-    example_sentence TEXT
+    example_sentence TEXT,
+    box INTEGER NOT NULL DEFAULT 1 CHECK (box BETWEEN 1 AND 5),
+    next_review_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    last_reviewed_at TIMESTAMP,
+    review_count INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_started_at ON sessions(started_at);
 CREATE INDEX IF NOT EXISTS idx_turns_session_id ON conversation_turns(session_id);
+CREATE INDEX IF NOT EXISTS idx_session_vocabulary_next_review_at ON session_vocabulary(next_review_at);

@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { MicIcon, StopIcon, SpeakerIcon, PauseIcon } from "./Icons";
+import { playTTS } from "../lib/tts";
 
 interface ShadowingItem {
   original: string;
@@ -17,22 +19,6 @@ function getSR(): SR | null {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const w = window as any;
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
-}
-
-async function playTTS(text: string): Promise<void> {
-  const res = await fetch("/api/tts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  return new Promise((resolve) => {
-    const audio = new Audio(url);
-    audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
-    audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
-    audio.play();
-  });
 }
 
 function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) {
@@ -122,9 +108,9 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
           onClick={handlePlay}
           disabled={playing}
           className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-blue text-cyber-blue text-xs font-mono hover:bg-cyber-blue/10 disabled:opacity-30 transition-all"
-          style={!playing ? { boxShadow: "none" } : { boxShadow: "0 0 8px rgba(30,144,255,0.3)" }}
         >
-          {playing ? "⏸" : "🔊"} {playing ? "再生中..." : "聴く"}
+          <span className="w-3.5 h-3.5">{playing ? <PauseIcon /> : <SpeakerIcon />}</span>
+          {playing ? "再生中..." : "聴く"}
         </button>
 
         {!getSR() ? (
@@ -134,15 +120,14 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
             onClick={startRecording}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-red text-cyber-red text-xs font-mono hover:bg-cyber-red/10 transition-all"
           >
-            🎤 練習する
+            <span className="w-3.5 h-3.5"><MicIcon /></span> 練習する
           </button>
         ) : (
           <button
             onClick={stopRecording}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyber-red bg-cyber-red/20 text-cyber-red text-xs font-mono animate-pulse"
-            style={{ boxShadow: "0 0 12px rgba(255,45,85,0.4)" }}
           >
-            ⏹ 停止
+            <span className="w-3.5 h-3.5"><StopIcon /></span> 停止
           </button>
         )}
 
@@ -158,8 +143,7 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
 
       {/* Result */}
       {recordState === "done" && userText && (
-        <div className="rounded-lg border border-cyber-border px-4 py-3 space-y-2"
-             style={{ background: "rgba(0,0,68,0.6)" }}>
+        <div className="rounded-lg border border-cyber-border px-4 py-3 space-y-2 bg-cyber-bg3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-mono tracking-widest text-cyber-cyan/40">▸ あなたの発話</p>
             {score !== null && (

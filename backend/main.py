@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from models import Base
-from routers import situations, sessions, dashboard, tts
+from routers import situations, sessions, dashboard, tts, review
 
 Base.metadata.create_all(bind=engine)
 
@@ -25,6 +25,7 @@ app.include_router(situations.router)
 app.include_router(sessions.router)
 app.include_router(dashboard.router)
 app.include_router(tts.router)
+app.include_router(review.router)
 
 
 @app.get("/health")
