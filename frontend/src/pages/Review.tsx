@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { api, ReviewItem, ReviewRating } from "../services/api";
 import { playTTS } from "../lib/tts";
 import { SpeakerIcon } from "../components/Icons";
+import SpeakingReviewCard from "../components/SpeakingReviewCard";
+
+type Mode = "flashcard" | "speaking";
 
 export default function Review() {
   const [items, setItems] = useState<ReviewItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [mode, setMode] = useState<Mode>("flashcard");
 
   useEffect(() => {
     api.getReviewQueue(20).then((q) => {
@@ -48,6 +52,25 @@ export default function Review() {
         <div className="h-px bg-gradient-to-r from-transparent via-cyber-cyan to-transparent opacity-30 mt-3" />
       </div>
 
+      <div className="flex gap-2 justify-center">
+        {([
+          { key: "flashcard", label: "📇 フラッシュカード" },
+          { key: "speaking", label: "🎤 スピーキング" },
+        ] as { key: Mode; label: string }[]).map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => { setMode(key); setFlipped(false); }}
+            className={
+              mode === key
+                ? "cyber-btn text-xs px-4 py-1.5"
+                : "text-xs px-4 py-1.5 rounded font-mono uppercase tracking-widest border-[1.5px] border-cyber-cyan/20 text-cyber-cyan/40 hover:text-cyber-cyan/70 hover:border-cyber-cyan/40 transition-all"
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {items.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-4 opacity-30">◈</p>
@@ -60,56 +83,60 @@ export default function Review() {
             残り {items.length} / {total}
           </p>
 
-          <div className="cyber-card min-h-[280px] flex flex-col">
-            <p className="text-xs font-mono text-cyber-blue tracking-widest mb-1">{items[0].situation_title}</p>
+          {mode === "speaking" ? (
+            <SpeakingReviewCard key={items[0].id} item={items[0]} onAnswer={handleAnswer} />
+          ) : (
+            <div className="cyber-card min-h-[280px] flex flex-col">
+              <p className="text-xs font-mono text-cyber-blue tracking-widest mb-1">{items[0].situation_title}</p>
 
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 py-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold font-mono text-cyber-cyan text-center">
-                  {items[0].word_or_phrase}
-                </h2>
-                <button
-                  onClick={() => handleSpeak(items[0].word_or_phrase)}
-                  disabled={speaking}
-                  className="w-5 h-5 text-cyber-cyan/50 hover:text-cyber-cyan disabled:opacity-30 transition-colors"
-                >
-                  <SpeakerIcon />
-                </button>
+              <div className="flex-1 flex flex-col items-center justify-center gap-4 py-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold font-mono text-cyber-cyan text-center">
+                    {items[0].word_or_phrase}
+                  </h2>
+                  <button
+                    onClick={() => handleSpeak(items[0].word_or_phrase)}
+                    disabled={speaking}
+                    className="w-5 h-5 text-cyber-cyan/50 hover:text-cyber-cyan disabled:opacity-30 transition-colors"
+                  >
+                    <SpeakerIcon />
+                  </button>
+                </div>
+
+                {!flipped ? (
+                  <button onClick={() => setFlipped(true)} className="cyber-btn text-xs px-6 py-2 mt-4">
+                    タップして意味を見る
+                  </button>
+                ) : (
+                  <div className="w-full space-y-3 text-center">
+                    <p className="text-cyber-cyan/70 text-sm">{items[0].explanation}</p>
+                    {items[0].example_sentence && (
+                      <p className="text-cyber-cyan/40 text-xs italic border-l-2 border-cyber-cyan/20 pl-3 text-left">
+                        例: {items[0].example_sentence}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {!flipped ? (
-                <button onClick={() => setFlipped(true)} className="cyber-btn text-xs px-6 py-2 mt-4">
-                  タップして意味を見る
-                </button>
-              ) : (
-                <div className="w-full space-y-3 text-center">
-                  <p className="text-cyber-cyan/70 text-sm">{items[0].explanation}</p>
-                  {items[0].example_sentence && (
-                    <p className="text-cyber-cyan/40 text-xs italic border-l-2 border-cyber-cyan/20 pl-3 text-left">
-                      例: {items[0].example_sentence}
-                    </p>
-                  )}
+              {flipped && (
+                <div className="flex gap-2 pt-2">
+                  <button onClick={() => handleAnswer("again")} className="cyber-btn-red flex-1 py-2 text-xs">
+                    もう一度
+                  </button>
+                  <button
+                    onClick={() => handleAnswer("hard")}
+                    className="flex-1 py-2 text-xs rounded font-mono uppercase tracking-widest border-[1.5px] border-cyber-yellow text-cyber-yellow bg-white hover:bg-cyber-yellow hover:text-white transition-all"
+                  >
+                    あいまい
+                  </button>
+                  <button onClick={() => handleAnswer("good")} className="cyber-btn-blue flex-1 py-2 text-xs">
+                    覚えた
+                  </button>
                 </div>
               )}
             </div>
-
-            {flipped && (
-              <div className="flex gap-2 pt-2">
-                <button onClick={() => handleAnswer("again")} className="cyber-btn-red flex-1 py-2 text-xs">
-                  もう一度
-                </button>
-                <button
-                  onClick={() => handleAnswer("hard")}
-                  className="flex-1 py-2 text-xs rounded font-mono uppercase tracking-widest border-[1.5px] border-cyber-yellow text-cyber-yellow bg-white hover:bg-cyber-yellow hover:text-white transition-all"
-                >
-                  あいまい
-                </button>
-                <button onClick={() => handleAnswer("good")} className="cyber-btn-blue flex-1 py-2 text-xs">
-                  覚えた
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </>
       )}
     </div>

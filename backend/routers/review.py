@@ -5,13 +5,17 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from models import Session, SessionVocabulary
-from services import review_service
+from services import review_service, claude_service
 
 router = APIRouter(prefix="/api/review", tags=["review"])
 
 
 class AnswerRequest(BaseModel):
     rating: Literal["again", "hard", "good"]
+
+
+class SpeakRequest(BaseModel):
+    spoken_text: str
 
 
 @router.get("/queue")
@@ -46,6 +50,25 @@ def get_queue(limit: int = 20, db: DBSession = Depends(get_db)):
             }
             for v, title in rows
         ],
+    }
+
+
+@router.post("/{vocab_id}/speak")
+def speak(vocab_id: int, req: SpeakRequest, db: DBSession = Depends(get_db)):
+    vocab = db.query(SessionVocabulary).filter(SessionVocabulary.id == vocab_id).first()
+    if not vocab:
+        raise HTTPException(status_code=404, detail="Vocabulary item not found")
+
+    result = claude_service.evaluate_speaking(
+        vocab.word_or_phrase, vocab.explanation, vocab.example_sentence, req.spoken_text
+    )
+
+    return {
+        "is_correct": result.get("is_correct", False),
+        "score": result.get("score", 0),
+        "feedback": result.get("feedback", ""),
+        "pronunciation_tips": result.get("pronunciation_tips", []),
+        "correct_answer": result.get("correct_answer", vocab.word_or_phrase),
     }
 
 

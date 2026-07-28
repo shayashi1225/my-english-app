@@ -231,3 +231,35 @@ vocabularyには、会話中に登場した、またはこのシチュエーシ�
     )
 
     return _parse_json(response.content[0].text)
+
+
+def evaluate_speaking(word_or_phrase: str, explanation: str, example_sentence: str, spoken_text: str) -> dict:
+    prompt = f"""あなたは英語コーチです。学習者は日本語の意味だけを見て、対応する英語表現を音声入力で答えました。
+
+正解の表現: "{word_or_phrase}"
+意味の説明: {explanation}
+例文: {example_sentence or "(なし)"}
+
+学習者が音声入力（Web Speech APIによる文字起こし）で答えた内容: "{spoken_text}"
+
+この文字起こしを正解の表現と比較し、評価してください。文字起こしは発音の癖により誤認識されることがあるため、実際に発音されたであろう単語を推測しつつ判断してください（例えば全く違う単語として認識されている場合、発音が不明瞭だった可能性を考慮してください）。
+
+以下のJSON形式で返してください（テキストフィールドはすべて日本語）:
+{{
+  "is_correct": <boolean, 意味的に正解の表現と一致するか（多少の言い換えは許容）>,
+  "score": <0〜10の数値、語彙選択と推定される発音の明瞭さを総合したスコア>,
+  "feedback": "学習者の回答に対する短い総評（日本語、1〜2文）",
+  "pronunciation_tips": ["発音に関する具体的なアドバイス（日本語）"],
+  "correct_answer": "{word_or_phrase}"
+}}
+
+pronunciation_tipsは、誤認識の可能性がある箇所や、この表現特有の発音の注意点を1〜3個含めてください。特に問題がなければ空配列で構いません。"""
+
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=1024,
+        system="あなたは英語コーチです。有効なJSONのみで回答してください。",
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    return _parse_json(response.content[0].text)

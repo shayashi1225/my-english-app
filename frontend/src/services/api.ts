@@ -103,6 +103,14 @@ export interface ReviewQueue {
 
 export type ReviewRating = "again" | "hard" | "good";
 
+export interface SpeakEvaluation {
+  is_correct: boolean;
+  score: number;
+  feedback: string;
+  pronunciation_tips: string[];
+  correct_answer: string;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(BASE + path, {
     headers: { "Content-Type": "application/json" },
@@ -143,4 +151,10 @@ export const api = {
       `/review/${vocabId}/answer`,
       { method: "POST", body: JSON.stringify({ rating }) }
     ),
+
+  evaluateSpeaking: (vocabId: number, spoken_text: string) =>
+    request<SpeakEvaluation>(`/review/${vocabId}/speak`, {
+      method: "POST",
+      body: JSON.stringify({ spoken_text }),
+    }),
 };
