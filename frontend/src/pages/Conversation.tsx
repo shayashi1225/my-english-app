@@ -9,12 +9,12 @@ import { SpeakerIcon } from "../components/Icons";
 interface Message { speaker: "ai" | "user"; text: string; }
 type Phase = "ready" | "conversation" | "processing" | "summary";
 
-async function speak(text: string, onEnd: () => void, onError: (m: string) => void) {
+async function speak(text: string, sessionId: number | undefined, onEnd: () => void, onError: (m: string) => void) {
   try {
     const res = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, session_id: sessionId ?? null }),
     });
     if (!res.ok) throw new Error(`TTS ${res.status}`);
     const blob = await res.blob();
@@ -52,7 +52,7 @@ export default function Conversation() {
   function doSpeak(text: string) {
     setIsSpeaking(true);
     setSpeechError(null);
-    speak(text, () => setIsSpeaking(false), (m) => setSpeechError(m));
+    speak(text, sessionId ? Number(sessionId) : undefined, () => setIsSpeaking(false), (m) => setSpeechError(m));
   }
 
   function handleStart() {

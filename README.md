@@ -6,7 +6,7 @@
 
 - **7つのビジネスシチュエーション** — スタンドアップ・コードレビュー・クライアントプレゼン・インシデント対応・スプリント計画・1on1・同僚とのカジュアルな雑談
 - **学習者名の設定** — ホーム画面で名前を入力するとAIが会話中に名前で呼びかける（localStorageに保存）
-- **音声会話** — AIが英語で話しかけ（gTTS）、ユーザーはマイクで英語回答（Web Speech API）
+- **音声会話** — AIが英語で話しかけ（edge-tts、セッションごとに男女・アクセント違いの声をランダムに割り当て）、ユーザーはマイクで英語回答（Web Speech API）
 - **リアルタイムフィードバック** — ターンごとに文法スコア・修正案・発音アドバイスを表示
 - **シャドーイング練習** — セッションサマリー後に自分の発言とAIの修正文を聞き比べて発音を練習
 - **セッションサマリー（日本語）** — 終了後に総括・良かった点・改善点・語彙解説をレポート
@@ -133,7 +133,7 @@ npm install && npm run dev
 | バックエンド | Python FastAPI + SQLAlchemy |
 | データベース | PostgreSQL 16 |
 | AI | Claude claude-sonnet-4-6 (Anthropic API) |
-| 音声出力 | gTTS（Google Text-to-Speech）→ ブラウザ Audio API |
+| 音声出力 | edge-tts（Microsoft Edge Neural TTS、セッション単位でランダムな声を選択）→ ブラウザ Audio API |
 | 音声入力 | Web Speech API（Chrome） |
 | コンテナ | Podman + Red Hat UBI（ubi9/python-311, ubi9/nodejs-20, ubi8/nginx-120） |
 
