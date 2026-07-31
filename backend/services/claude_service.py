@@ -215,13 +215,15 @@ def generate_session_summary(situation_id: str, conversation_history: list) -> d
   "vocabulary": [
     {{
       "word_or_phrase": "表現またはフレーズ（英語）",
-      "explanation": "意味と使い方の説明（日本語）",
+      "meaning_ja": "word_or_phraseと1対1で対応する、直訳に近い短い日本語訳（数語程度）",
+      "explanation": "意味と使い方の説明（日本語、ニュアンスや使用場面の補足）",
       "example_sentence": "使用例（英語）"
     }}
   ]
 }}
 
-vocabularyには、会話中に登場した、またはこのシチュエーションで役立つITビジネス英語表現を4〜6個含めてください。"""
+vocabularyには、会話中に登場した、またはこのシチュエーションで役立つITビジネス英語表現を4〜6個含めてください。
+meaning_jaはexplanationとは別に、word_or_phraseを見ずにmeaning_jaだけ見てword_or_phraseを言い当てられるくらい、直接的で簡潔な訳にしてください。"""
 
     response = client.messages.create(
         model=MODEL,

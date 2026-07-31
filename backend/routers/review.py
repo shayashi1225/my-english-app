@@ -42,6 +42,7 @@ def get_queue(limit: int = 20, db: DBSession = Depends(get_db)):
                 "id": v.id,
                 "word_or_phrase": v.word_or_phrase,
                 "explanation": v.explanation,
+                "meaning_ja": v.meaning_ja,
                 "example_sentence": v.example_sentence,
                 "box": v.box,
                 "next_review_at": v.next_review_at,

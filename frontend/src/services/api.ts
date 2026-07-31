@@ -89,6 +89,7 @@ export interface ReviewItem {
   id: number;
   word_or_phrase: string;
   explanation: string;
+  meaning_ja: string | null;
   example_sentence: string | null;
   box: number;
   next_review_at: string;

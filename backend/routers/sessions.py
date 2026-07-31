@@ -125,6 +125,7 @@ def complete_session(session_id: int, db: DBSession = Depends(get_db)):
             session_id=session_id,
             word_or_phrase=vocab["word_or_phrase"],
             explanation=vocab["explanation"],
+            meaning_ja=vocab.get("meaning_ja"),
             example_sentence=vocab.get("example_sentence"),
         )
         db.add(item)
@@ -142,6 +143,7 @@ def complete_session(session_id: int, db: DBSession = Depends(get_db)):
             {
                 "word_or_phrase": v.word_or_phrase,
                 "explanation": v.explanation,
+                "meaning_ja": v.meaning_ja,
                 "example_sentence": v.example_sentence,
             }
             for v in vocab_items
@@ -178,6 +180,7 @@ def get_session(session_id: int, db: DBSession = Depends(get_db)):
             {
                 "word_or_phrase": v.word_or_phrase,
                 "explanation": v.explanation,
+                "meaning_ja": v.meaning_ja,
                 "example_sentence": v.example_sentence,
             }
             for v in vocab_items

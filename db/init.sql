@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS session_vocabulary (
     session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
     word_or_phrase VARCHAR(200) NOT NULL,
     explanation TEXT NOT NULL,
+    meaning_ja VARCHAR(200),
     example_sentence TEXT,
     box INTEGER NOT NULL DEFAULT 1 CHECK (box BETWEEN 1 AND 5),
     next_review_at TIMESTAMP NOT NULL DEFAULT NOW(),

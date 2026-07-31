@@ -40,7 +40,7 @@ export default function SpeakingReviewCard({ item, onAnswer }: Props) {
 
       <div className="flex-1 flex flex-col items-center justify-center gap-5 py-6 text-center">
         <p className="text-xs font-mono text-cyber-cyan/40 tracking-widest">▸ この意味を英語で言ってみましょう</p>
-        <p className="text-cyber-cyan text-lg leading-relaxed">{item.explanation}</p>
+        <p className="text-cyber-cyan text-lg leading-relaxed">{item.meaning_ja || item.explanation}</p>
 
         {!evaluation && !evaluating && (
           <VoiceRecorder onResult={handleResult} disabled={evaluating} />

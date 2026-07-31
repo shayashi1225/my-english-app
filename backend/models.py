@@ -50,6 +50,7 @@ class SessionVocabulary(Base):
     session_id = Column(Integer, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
     word_or_phrase = Column(String(200), nullable=False)
     explanation = Column(Text, nullable=False)
+    meaning_ja = Column(String(200), nullable=True)
     example_sentence = Column(Text, nullable=True)
     box = Column(Integer, nullable=False, default=1)
     next_review_at = Column(DateTime, nullable=False, default=datetime.utcnow)
