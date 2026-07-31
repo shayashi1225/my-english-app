@@ -9,6 +9,7 @@ interface ShadowingItem {
 
 interface Props {
   items: ShadowingItem[];
+  sessionId: number;
 }
 
 type RecordingState = "idle" | "recording" | "done";
@@ -21,7 +22,7 @@ function getSR(): SR | null {
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 }
 
-function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) {
+function ShadowingCard({ item, index, sessionId }: { item: ShadowingItem; index: number; sessionId: number }) {
   const [playing, setPlaying] = useState(false);
   const [recordState, setRecordState] = useState<RecordingState>("idle");
   const [userText, setUserText] = useState("");
@@ -30,7 +31,7 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
 
   async function handlePlay() {
     setPlaying(true);
-    await playTTS(item.corrected);
+    await playTTS(item.corrected, sessionId);
     setPlaying(false);
   }
 
@@ -159,7 +160,7 @@ function ShadowingCard({ item, index }: { item: ShadowingItem; index: number }) 
   );
 }
 
-export default function ShadowingPlayer({ items }: Props) {
+export default function ShadowingPlayer({ items, sessionId }: Props) {
   if (items.length === 0) {
     return (
       <p className="text-xs font-mono text-cyber-cyan/30 text-center py-6 tracking-widest">
@@ -174,7 +175,7 @@ export default function ShadowingPlayer({ items }: Props) {
         ▸ 「聴く」で正しい発音を確認し、「練習する」で声に出して繰り返しましょう
       </p>
       {items.map((item, i) => (
-        <ShadowingCard key={i} item={item} index={i} />
+        <ShadowingCard key={i} item={item} index={i} sessionId={sessionId} />
       ))}
     </div>
   );

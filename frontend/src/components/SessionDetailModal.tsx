@@ -108,6 +108,7 @@ export default function SessionDetailModal({ sessionId, onClose }: Props) {
                   items={detail.turns
                     .filter((t) => t.speaker === "user" && t.corrected_text && t.corrected_text !== t.text)
                     .map((t) => ({ original: t.text, corrected: t.corrected_text! }))}
+                  sessionId={sessionId}
                 />
               ) : tab === "summary" ? (
                 <>

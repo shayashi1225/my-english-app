@@ -138,7 +138,7 @@ export default function SessionSummaryView({ data, sessionId }: Props) {
           )}
         </>
       ) : (
-        <ShadowingPlayer items={shadowingItems} />
+        <ShadowingPlayer items={shadowingItems} sessionId={sessionId} />
       )}
 
       <div className="flex gap-3 pt-2">
